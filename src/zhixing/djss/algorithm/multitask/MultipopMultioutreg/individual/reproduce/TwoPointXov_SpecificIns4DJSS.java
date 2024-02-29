@@ -135,32 +135,6 @@ public class TwoPointXov_SpecificIns4DJSS extends TwoPointXov_SpecificIns{
         		((TournamentSel_SpecificIns)sources[0]).produce_merge(1,1,0,subpopulation, trial, parents,state,thread,tarSF);
             	((TournamentSel_SpecificIns)sources[1]).produce_merge(1,1,1,subpopulation, trial, parents,state,thread,tarSF);
         	}
-
-        	//==========debug
-//        	try{
-//        		OutputStream f = new FileOutputStream("E:/eclipse/eclipse/GPJSS-basicLGP/selectSubpop0.txt", true);
-//        		OutputStreamWriter writer = new OutputStreamWriter(f);
-//        		
-//        		if(((LGPIndividual_MPMO)parents[0]).getOutputRegisters().length > 1){
-//        			writer.append(state.generation + "\t" + 1.0 + "\n");
-//        		}
-//        		else{
-//        			writer.append(state.generation + "\t" + 0.0 + "\n");
-//        		}
-//        		if(((LGPIndividual_MPMO)parents[1]).getOutputRegisters().length > 1){
-//        			writer.append(state.generation + "\t" + 1.0 + "\n");
-//        		}
-//        		else{
-//        			writer.append(state.generation + "\t" + 0.0 + "\n");
-//        		}
-//        		
-//        		writer.close();
-//        		f.close();
-//        	}catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-        	//==========
         	
         	((MPMO_EvolutionState4DJSS)state).numXov[state.generation+1]+=2;
     		if(((LGPIndividual_MPMO)parents[0]).getOutputRegisters().length > 1){
