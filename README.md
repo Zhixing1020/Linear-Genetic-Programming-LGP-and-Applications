@@ -1,6 +1,6 @@
 # Linear Genetic Programming (LGP) and Applications
 
-This project implements a basic linear genetic programming algorithm and some of its advanced variants. The main feature of this project is that it decouples the algorithm implementations and problem applications, which facilitates the application to other domains. In this project, we apply linear genetic programming to dynamic job shop scheduling and symbolic regression, respectively.
+This project implements a basic linear genetic programming algorithm and some of its advanced variants based on ECJ. The main feature of this project is that it decouples the algorithm implementations and problem applications, which facilitates the application to other domains. In this project, we apply LGP to dynamic job shop scheduling and symbolic regression, respectively.
 
 This project is developed based on https://github.com/meiyi1986/GPJSS and the pseudo codes in [1]. To identify the difference between this project and the [existing one](https://github.com/meiyi1986/GPJSS), you would search `===zhixing` or `=== zhixing` in this package. The comments highlight the different parts.
 
