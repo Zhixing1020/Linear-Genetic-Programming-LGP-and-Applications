@@ -64,7 +64,7 @@ pop.subpop.0.species.ind.tree.0.tc = tc0
 pop.subpop.0.species.ind.num-output-register = 1
 pop.subpop.0.species.ind.output-register.0 = 0
 
-#pop.subpop.0.species.ind.rulepath = E:\\eclipse\\eclipse\\GPJSS-basicLGP\\src\\zhixing\\jss\\cpxInd\\algorithm\\Grammar\\grammarrules\\ruleslibrary\\DJSS_rules.txt
+#pop.subpop.0.species.ind.rulepath = E:\\GPJSS-basicLGP\\src\\zhixing\\jss\\cpxInd\\algorithm\\Grammar\\grammarrules\\ruleslibrary\\DJSS_rules.txt
 pop.subpop.0.species.ind.moduleconstraint = modulec_0
 
 #pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
