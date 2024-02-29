@@ -95,7 +95,7 @@ public class Parser {
 
 	public static void main(String[] args) {
 
-        String path = "D:\\����thinking\\����\\JobShopScheduling\\multitask\\baseline\\after2022CEC\\50runs\\";
+        String path = "D:\\xxxx\\";
         String algo = "MPMO_F43_50runs";
         String scenario = "heteWMean";
 
