@@ -1,0 +1,277 @@
+package zhixing.cpxInd.algorithm.multitask.M2GP.individual.reproduce;
+
+import ec.EvolutionState;
+import ec.Individual;
+import ec.gp.GPInitializer;
+import ec.gp.GPNode;
+import ec.gp.GPTree;
+import ec.util.Parameter;
+import zhixing.cpxInd.individual.GPTreeStruct;
+import zhixing.cpxInd.individual.LGPDefaults;
+import zhixing.cpxInd.individual.LGPIndividual;
+import zhixing.cpxInd.individual.reproduce.LGP2PointCrossoverPipeline;
+
+public class OriginBased_LGP_2PXoverPipeline extends LGP2PointCrossoverPipeline{
+	
+	public static final String P_OBCROSS = "ob2pcross";
+	public static final String P_MULTITASK_BREED = "multitask";
+	
+	
+	public void setup(final EvolutionState state, final Parameter base){
+		super.setup(state, base);
+		
+		Parameter def = LGPDefaults.base().push(P_MULTITASK_BREED).push(P_OBCROSS);
+		
+		tossSecondParent = state.parameters.getBoolean(base.push(P_TOSS),
+	            def.push(P_TOSS),false);
+	}
+	
+	@Override
+    public int produce(final int min, 
+        final int max, 
+        final int start,
+        final int subpopulation,
+        final Individual[] inds,
+        final EvolutionState state,
+        final int thread) 
+
+        {
+        // how many individuals should we make?
+        int n = typicalIndsProduced();
+        if (n < min) n = min;
+        if (n > max) n = max;
+
+        // should we bother?
+        if (!state.random[thread].nextBoolean(likelihood))
+            return reproduce(n, start, subpopulation, inds, state, thread, true);  // DO produce children from source -- we've not done so already
+
+      //get the trial subpopulation for the origin-based offspring reservation
+//        int trial = subpopulation;
+//        while(state.population.subpops.length > 1 && trial == subpopulation){
+//        	trial = state.random[thread].nextInt(state.population.subpops.length);
+//        }
+        int trial = getLegalTrialPopulation(state, thread, subpopulation);
+
+        GPInitializer initializer = ((GPInitializer)state.initializer);
+        
+        for(int q=start, parnt = 0;q<n+start; /* no increment */)  // keep on going until we're filled up
+            {
+           
+            sources[0].produce(1,1,0,subpopulation,parents,state,thread);
+            sources[1].produce(1,1,1,trial,parents,state,thread);
+            
+            // at this point, parents[] contains our two selected individuals
+            LGPIndividual[] parnts = new LGPIndividual[2];
+        	for(int ind = 0 ; ind < parnts.length; ind++){
+        		parnts[ind] = (LGPIndividual) this.parents[ind]; 
+        	}
+        	
+            q += this.produce(min, max, start, subpopulation, inds, state, thread, parnts);
+
+            }
+            
+        return n;
+        }
+	
+	@Override
+	public int produce(final int min, 
+	        final int max, 
+	        final int start,
+	        final int subpopulation,
+	        final Individual[] inds,
+	        final EvolutionState state,
+	        final int thread,
+	        final Individual[] parents){
+		// how many individuals should we make?
+        int n = typicalIndsProduced();
+        if (n < min) n = min;
+        if (n > max) n = max;
+
+        // should we bother?
+        if (!state.random[thread].nextBoolean(likelihood))
+            return reproduce(n, start, subpopulation, inds, state, thread, true);  // DO produce children from source -- we've not done so already
+
+        GPInitializer initializer = ((GPInitializer)state.initializer);
+        
+        for(int q=start, parnt = 0;q<n+start; /* no increment */)  // keep on going until we're filled up
+            {
+            
+            // at this point, parents[] contains our two selected individuals
+            
+            // are our tree values valid?
+            if (tree1!=TREE_UNFIXED && (tree1<0 || tree1 >= ((LGPIndividual) parents[0]).getTreesLength()))
+                // uh oh
+                state.output.fatal("LGP Crossover Pipeline attempted to fix tree.0 to a value which was out of bounds of the array of the individual's trees.  Check the pipeline's fixed tree values -- they may be negative or greater than the number of trees in an individual"); 
+            if (tree2!=TREE_UNFIXED && (tree2<0 || tree2 >= ((LGPIndividual) parents[1]).getTreesLength()))
+                // uh oh
+                state.output.fatal("LGP Crossover Pipeline attempted to fix tree.1 to a value which was out of bounds of the array of the individual's trees.  Check the pipeline's fixed tree values -- they may be negative or greater than the number of trees in an individual"); 
+
+            int t1=0, t2=0;
+            LGPIndividual j1, j2;
+            if(((LGPIndividual)parents[parnt]).getTreesLength() <= ((LGPIndividual)parents[(parnt + 1)%parents.length]).getTreesLength()) {
+            	j1 = ((LGPIndividual)parents[parnt]).lightClone();
+            	t1 = parnt;
+                j2 = ((LGPIndividual)parents[(parnt + 1)%parents.length]).lightClone();
+                t2 = (parnt + 1)%parents.length;
+            }
+            else {
+            	j2 = ((LGPIndividual)parents[parnt]).lightClone();
+            	t2 = parnt;
+                j1 = ((LGPIndividual)parents[(parnt + 1)%parents.length]).lightClone();
+                t1 = (parnt + 1)%parents.length;
+            }
+            
+            // Fill in various tree information that didn't get filled in there
+            //j1.renewTrees();
+            //if (n-(q-start)>=2 && !tossSecondParent) j2.renewTrees();
+            
+            int begin1 = state.random[thread].nextInt(j1.getTreesLength());
+            int pickNum1 = state.random[thread].nextInt(Math.min(j1.getTreesLength() - begin1, MaxSegLength)) + 1;
+            
+            int feasibleLowerB = Math.max(0, begin1 - MaxDistanceCrossPoint);
+            int feasibleUpperB = Math.min(j2.getTreesLength() - 1, begin1 + MaxDistanceCrossPoint);
+
+            int begin2 = feasibleLowerB + state.random[thread].nextInt(feasibleUpperB - feasibleLowerB + 1);
+            int pickNum2 = 1 + state.random[thread].nextInt(Math.min(j2.getTreesLength() - begin2, MaxSegLength));
+            boolean eff = Math.abs(pickNum1 - pickNum2) <= MaxLenDiffSeg;
+            if(!eff) {
+            	if(j2.getTreesLength() - begin2 > pickNum1 - MaxLenDiffSeg){
+            		int compensate = MaxLenDiffSeg==0 ? 1 : 0;
+            		pickNum2 = Math.max(1, pickNum1 - MaxLenDiffSeg) 
+            				+ state.random[thread].nextInt(Math.min(MaxSegLength, Math.min(j2.getTreesLength() - begin2, pickNum1 + MaxLenDiffSeg))
+        					- Math.max(0, pickNum1 - MaxLenDiffSeg) + compensate);
+            	}
+            	//the pesudo code of LGP book cannot guarantee the difference between pickNum1 and pickNum2 is smaller than 1
+            	//especially when the begin2 is near to the tail and pickNum1 is relatively large, reselect pickNum2 can do nothing
+//            	else{
+//            		pickNum2 = pickNum1 = Math.min(pickNum1, pickNum2);
+//            	}
+            }
+            
+            if(pickNum1 <= pickNum2) {
+            	if(j2.getTreesLength() - (pickNum2 - pickNum1)<j2.getMinNumTrees()
+            			|| j1.getTreesLength() + (pickNum2 - pickNum1)>j1.getMaxNumTrees()) {
+            		if(state.random[thread].nextDouble()<0.5) {
+            			pickNum1 = pickNum2;
+            		}
+            		else {
+            			pickNum2 = pickNum1;
+            		}
+            		if(begin1 + pickNum1 > j1.getTreesLength()) {
+            			pickNum1 = pickNum2 = j1.getTreesLength() - begin1;
+            		}
+            	}
+            }
+            else{
+            	if(j2.getTreesLength() + (pickNum1 - pickNum2) > j2.getMaxNumTrees()
+            			|| j1.getTreesLength() - (pickNum1 - pickNum2)<j1.getMinNumTrees()) {
+            		if(state.random[thread].nextDouble()<0.5) {
+            			pickNum2 = pickNum1;
+            		}
+            		else {
+            			pickNum1 = pickNum2;
+            		}
+            		if(begin2 + pickNum2 > j2.getTreesLength()) { //cannot provide as much as instructions
+            			pickNum1 = pickNum2 = j2.getTreesLength() - begin2;
+            		}
+            	}
+            }
+            
+            for(int pick = 0; pick < ((LGPIndividual) parents[t1]).getTreesLength(); pick ++){
+            	if(pick == begin1){
+            		//remove trees in j1
+            		for(int p = 0;p<pickNum1;p++) {
+            			j1.removeTree(pick);
+            			j1.evaluated = false;
+            		}
+            		
+            		//add trees in j1
+            		for(int p = 0;p<pickNum2;p++){
+            			GPTreeStruct tree = (GPTreeStruct) (((LGPIndividual) parents[t2]).getTree(begin2 + p).clone());
+                		//tree = (GPTree)(parents[parnt].getTree(pick).lightClone());
+                        tree.owner = j1;
+                        tree.child = (GPNode)(((LGPIndividual) parents[t2]).getTree(begin2 + p).child.clone());
+                        tree.child.parent = tree;
+                        tree.child.argposition = 0;
+                        j1.addTree(pick + p, tree);
+                        j1.evaluated = false; 
+            		}
+            	}
+            	
+            }
+            
+            j1 = (LGPIndividual) microMutation.produce(subpopulation, j1, state, thread);
+            
+            for(int pick = 0; pick < ((LGPIndividual) parents[t2]).getTreesLength(); pick++) {
+        		if(pick == begin2){
+            		//remove trees in j2
+            		for(int p = 0;p<pickNum2;p++) {
+            			j2.removeTree(pick);
+            			j2.evaluated = false;
+            		}
+            		
+            		//add trees in j2
+            		for(int p = 0;p<pickNum1;p++){
+            			GPTreeStruct tree = (GPTreeStruct) (((LGPIndividual) parents[t1]).getTree(begin1 + p).clone());
+                		//tree = (GPTree)(parents[parnt].getTree(pick).lightClone());
+                        tree.owner = j2;
+                        tree.child = (GPNode)(((LGPIndividual) parents[t1]).getTree(begin1 + p).child.clone());
+                        tree.child.parent = tree;
+                        tree.child.argposition = 0;
+                        j2.addTree(pick + p, tree);
+                        j2.evaluated = false; 
+            		}
+            	}
+        	}
+        	
+        	j2 = (LGPIndividual) microMutation.produce(subpopulation, j2, state, thread);
+            
+            if(t1 == parnt){
+            	// add the individuals to the population
+            if(j1.getTreesLength() < j1.getMinNumTrees() || j1.getTreesLength() > j1.getMaxNumTrees()){
+            	state.output.fatal("illegal tree number in linear cross j1");
+            }
+            inds[q] = j1;
+            q++;
+            parnt ++;
+            if (q<n+start && !tossSecondParent)
+            {
+            	if(j2.getTreesLength() < j2.getMinNumTrees() || j2.getTreesLength() > j2.getMaxNumTrees()){
+                	state.output.fatal("illegal tree number in linear cross j2");
+                }
+	            inds[q] = j2;
+	            q++;
+	            parnt ++;
+            }
+            }
+            else{
+            	// add the individuals to the population
+                if(j2.getTreesLength() < j2.getMinNumTrees() || j2.getTreesLength() > j2.getMaxNumTrees()){
+                	state.output.fatal("illegal tree number in linear cross j2");
+                }
+                inds[q] = j2;
+                q++;
+                parnt ++;
+                if (q<n+start && !tossSecondParent)
+                {
+                	if(j1.getTreesLength() < j1.getMinNumTrees() || j1.getTreesLength() > j1.getMaxNumTrees()){
+                    	state.output.fatal("illegal tree number in linear cross j1");
+                    }
+    	            inds[q] = j1;
+    	            q++;
+    	            parnt ++;
+                }
+            }
+            }
+            
+        return n;
+	}
+	
+	protected int getLegalTrialPopulation(EvolutionState state, int thread, int cursubpop){
+		int trial = cursubpop;
+        while(state.population.subpops.length > 1 && trial == cursubpop){
+        	trial = state.random[thread].nextInt(state.population.subpops.length);
+        }
+        return trial;
+	}
+}

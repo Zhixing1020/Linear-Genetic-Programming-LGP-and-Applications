@@ -1,0 +1,71 @@
+defset FUNS {add,sub,mul,div,max,min};
+defset FLOWCTRL {IfLarge1,IfLarge3,IfLarge5,IfLarge2,IfLarge4,IfLessEq1,IfLessEq3,IfLessEq5,IfLessEq2,IfLessEq4};
+defset posINPUT {PT,NPT,WINQ,NINQ,rFDD,rDD,SL,JER};
+defset negINPUT {W,OWT,NWT,TIS,WKR,NOR};
+defset globalINPUT {NIQR,WIQR,DPT,DOWT,DNNQ,DWNQ,DNPT,BWR,EPR,MER};
+#SIQR,OWQR,NNQSR,DMRT,DSIQ,DWKR,DNOR,WKRSR,rDDR,SFR
+defset localINPUT {PTR,NORR,WKRR,NNQR,WNQR,OWTR,WR,rFDR,JERO};
+defset INPUT {posINPUT,negINPUT,globalINPUT};
+defset REG {R0,R1,R2,R3,R4,R5,R6,R7};
+defset HREG {R0,R1,R2,R3};
+defset SENREG {R4,R5,R6,R7};
+defset constant {0.1,0.3,0.5,0.7,0.9,0.2,0.4,0.6,0.8};
+
+defset globalINPUT_RAW {WIQ,MWT,NIQ};
+defset OPTIME {PT,NPT,WKR};
+defset SHOPTIME {rFDD,rDD,SL,OWT,NWT,TIS,MWT};
+defset WORKLOAD {WINQ,WIQ,WKR};
+defset OPNUM {NINQ,NIQ,NOR};
+
+begin modulec_0
+arith(I\O\R) ::= <O\{FUNS}\R+I\R+I>;
+#<O\{sub,div,max,min}\R\{negINPUT}+R>|<O\{FUNS}\{posINPUT}+R\R>
+
+condition(I\O\R) ::= <{R0}\{FLOWCTRL}\{globalINPUT}\{constant}>*2::<O\{FUNS}\R+I\R+I>
+|<{R0}\{IfLarge1}\{MER,EPR}\{constant}>*2::<O\{FUNS}\R+{JER}\R+{JER}>
+|<{R0}\{IfLarge1}\{BWR,NIQR,WIQR}\{constant}>*2::<O\{FUNS}\R+I\R+I>
+|<{R0}\{IfLessEq1}\{DPT,DNNQ,DWNQ,DOWT,DNPT}\{constant}>*2::<O\{FUNS}\R+I\R+I>
+|<O\{FUNS}\R+I\R+I>*3;
+#|<{R0}\{FLOWCTRL}\{OPTIME}\{OPTIME}>*2::<O\{FUNS}\R+I\R+I>
+#|<{R0}\{FLOWCTRL}\{SHOPTIME}\{SHOPTIME}>*2::<O\{FUNS}\R+I\R+I>
+#|<{R0}\{FLOWCTRL}\{WORKLOAD}\{WORKLOAD}>*2::<O\{FUNS}\R+I\R+I>
+#|<{R0}\{FLOWCTRL}\{OPNUM}\{OPNUM}>*2::<O\{FUNS}\R+I\R+I>
+#|<{R0}\{FLOWCTRL}\{DPT,DMRT,DOWT,SIQR}\{constant}>
+
+IF ::= <{R0}\{IfLarge1,IfLessEq1}\{globalINPUT,localINPUT}\{constant}>;
+#|<{R0}\{FLOWCTRL}\{OPTIME}\{OPTIME}>
+#|<{R0}\{FLOWCTRL}\{SHOPTIME}\{SHOPTIME}>
+#|<{R0}\{FLOWCTRL}\{WORKLOAD}\{WORKLOAD}>
+#|<{R0}\{FLOWCTRL}\{OPNUM}\{OPNUM}>
+#|<{R0}\{FLOWCTRL}\{REG}\{REG}>;
+#<{R0}\{IfLarge1}\{MER,EPR,BWR,NIQR,WIQR}\{constant}>
+#|<{R0}\{IfLessEq1}\{DPT,DNNQ,DWNQ,DOWT,DNPT}\{constant}>
+#|<{R0}\{IfLarge1,IfLessEq1}\{localINPUT}\{constant}>;
+
+#
+
+#condition2(I\O\R) ::=  IF :: <O\{FUNS}\R+I\R+I> | arith(I~I\O~O\R~R);
+condition2(I\O\R) ::= <O\{FUNS}\R+I\R+I> :: IF :: <O\{FUNS}\R+I\R+I>;
+
+PROGRAM ::= condition2(I~{posINPUT,negINPUT,localINPUT}\O~{REG}\R~{REG})*5::arith(I~{posINPUT,negINPUT}\O~{REG}\R~{REG})*;
+#
+end modulec_0
+
+
+# |: or in BNF form, :: is sequential combination, <>: concurrent execution(split), [...]: boolean check, *: repeatively recall (maximally 50) and at least one recall. if followed by an integer K, the item maximally repeats K times,  //: formulate, PROGRAM: the entrance key word of a program
+# boolean operators: && denotes and, || denotes or
+# vector key words: T_i: type vector, T_1: the type vector of the first argument, FREE: no constraints.
+# vector operators: =: equivalence, +: vector addition, -: vector substraction, /: vector division, *: vector multiplication
+# set key words: EMP: empty set
+# set operators: +: union set, ^: intersection, -: difference set, =: equivalence, <: is a subset, ~: set assignment (on the left hand of ~: the parameter identifier, on the right hand of ~: the to-be-assigned values from the parent), .size: return the size of the set, .get(): return the ith element
+# list key words:
+# list operators: 
+# each arith has its own vectors to record the values and datatype of registers. R!=NULL means a certain register should be assigned values before using.
+# module name can only start with [a-zA-Z0-9]
+# 
+
+# type vector only cares about the attributes whose dimensions matter. Other attributes whose dimensions do no matter have zeros type vector.
+# ensure each arith() contains at least one effective instruction
+# <output_reg,foreach,Container,program_length>, <output_reg,forcounter,Iter_boundary,program_length>, 
+# doIF: specify the body length and store the ACT values, outputIF(a,b): return ACT.get(0) if a<b, return ACT.get(1) otherwise.
+# linearScale_v: perform a linear scaling on all the output registers. It accepts two constant vectors whose dimension is set based on the output registers, one for coefficient and the other for bias

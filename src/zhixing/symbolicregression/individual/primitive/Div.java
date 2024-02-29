@@ -1,0 +1,36 @@
+package zhixing.symbolicregression.individual.primitive;
+
+import ec.EvolutionState;
+import ec.Problem;
+import yimei.jss.gp.data.*;
+import ec.gp.ADFStack;
+import ec.gp.GPData;
+import ec.gp.GPIndividual;
+
+public class Div extends yimei.jss.gp.function.Div{
+	@Override
+	 public void eval(final EvolutionState state,
+		        final int thread,
+		        final GPData input,
+		        final ADFStack stack,
+		        final GPIndividual individual,
+		        final Problem problem)
+		        {
+		        double result;
+		        DoubleData rd = ((DoubleData)(input));
+
+		        children[0].eval(state,thread,input,stack,individual,problem);
+		        result = rd.value;
+
+		        children[1].eval(state,thread,input,stack,individual,problem);
+		        
+//		        if(rd.value == 0) rd.value = result + 1e6;
+//		        else rd.value = result / rd.value;
+		        
+		        rd.value = result / Math.sqrt(1+rd.value*rd.value);   //Analytic quotient
+		        
+//		        if(Math.abs(rd.value) >= 1e6) {
+//		        	rd.value = 1e6*(rd.value+0.001)/(rd.value+0.001);
+//		        }
+		        }
+}

@@ -1,0 +1,47 @@
+defset FUNS {add,sub,mul,div,max,min};
+defset INPUT {PT,NPT,WINQ,OWT,NWT,WKR,rFDD,rDD,SL,TIS,WIQ,MWT,
+NINQ,NOR,NIQ,W};
+defset REG {R0,R1,R2,R3,R4,R5,R6,R7};
+defset HREG {R0,R1,R2,R3};
+
+begin modulec_0
+arith(I\O\R\F) ::= <O\{sub,div,max,min}\R\{W,OWT,NWT,TIS,WKR,NOR}+R>|<O\{add,mul,sub,div,max,min}\{PT,NPT,WINQ,NINQ,rFDD,rDD,SL}+R\R>|<O\{FUNS}\R+I\R+I>;
+
+bias(I\O\R\F) ::= <O\{sub,div}\O\{W,OWT,NWT,TIS,WKR,NOR}>|<O\{add,mul,sub,div}\{PT,NPT,WINQ,NINQ,rFDD,rDD,SL}\O>;
+
+connectbias(I\O\R\F) ::= <O\F\I\I>::bias(I~I\O~O\R~R\F~F);
+
+connectbiasSet(I\O\R\F) ::= connectbias(I~R\O~{R0}\R~R\F~{FUNS})
+|connectbias(I~R\O~{R1}\R~R\F~{FUNS})
+|connectbias(I~R\O~{R2}\R~R\F~{FUNS})
+|connectbias(I~R\O~{R3}\R~R\F~{FUNS});
+
+compressConnect ::= connectbiasSet(I~{REG}\O~{HREG}\R~{REG}\F~{FUNS})*3;
+
+compressConnectB ::= connectbiasSet(I~{HREG}\O~{HREG}\R~{HREG}\F~{FUNS})*3;
+
+compress ::= arith(I~{REG,INPUT}\O~{REG}\R~{REG}\F~{FUNS})*30::compressConnect;
+
+compressB ::= arith(I~{HREG,INPUT}\O~{HREG}\R~{HREG}\F~{FUNS})*20::compressConnectB;
+
+PROGRAM ::= compress::compressB;
+end modulec_0
+
+
+# |: or in BNF form, :: is sequential combination, <>: concurrent execution(split), [...]: boolean check, *: repeatively recall (maximally 50) and at least one recall. if followed by an integer K, the item maximally repeats K times,  //: formulate, PROGRAM: the entrance key word of a program
+# boolean operators: && denotes and, || denotes or
+# vector key words: T_i: type vector, T_1: the type vector of the first argument, FREE: no constraints.
+# vector operators: =: equivalence, +: vector addition, -: vector substraction, /: vector division, *: vector multiplication
+# set key words: EMP: empty set
+# set operators: +: union set, ^: intersection, -: difference set, =: equivalence, <: is a subset, ~: set assignment (on the left hand of ~: the parameter identifier, on the right hand of ~: the to-be-assigned values from the parent), .size: return the size of the set, .get(): return the ith element
+# list key words:
+# list operators: 
+# each arith has its own vectors to record the values and datatype of registers. R!=NULL means a certain register should be assigned values before using.
+# module name can only start with [a-zA-Z0-9]
+# 
+
+# type vector only cares about the attributes whose dimensions matter. Other attributes whose dimensions do no matter have zeros type vector.
+# ensure each arith() contains at least one effective instruction
+# <output_reg,foreach,Container,program_length>, <output_reg,forcounter,Iter_boundary,program_length>, 
+# doIF: specify the body length and store the ACT values, outputIF(a,b): return ACT.get(0) if a<b, return ACT.get(1) otherwise.
+# linearScale_v: perform a linear scaling on all the output registers. It accepts two constant vectors whose dimension is set based on the output registers, one for coefficient and the other for bias

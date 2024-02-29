@@ -1,0 +1,355 @@
+#print-unaccessed-params = true
+#print-used-params = true
+
+#use multit population of LGP to implement the multitask learning, refer to M2GP, Fangfang TCYB2021
+
+# ==============================
+# Administrative parameters
+# ==============================
+evalthreads = 1
+breedthreads = 1
+jobs = 1
+seed.0 = 4
+checkpoint = false
+checkpoint-modulo = 1
+checkpoint-prefix = ec
+
+# ==============================
+# Basic evolution parameters
+# ==============================
+state = zhixing.djss.algorithm.multitask.MultipopMultioutreg.EvolutionState.MPMO_EvolutionState4DJSS
+finish = ec.simple.SimpleFinisher
+exch = ec.simple.SimpleExchanger
+breed =	zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.breeder.MPMO_Breeder
+eval = zhixing.djss.algorithm.multitask.MFEA.evaluator.MFEA_Evaluator4DJSS
+stat = ec.simple.SimpleStatistics
+stat.file = $out.stat
+stat.num-children = 2
+stat.child.0 = zhixing.djss.algorithm.multitask.MultipopMultioutreg.statistics.MPMO_LGPStatistics4DJSS
+stat.child.0.file = $outtabular.stat
+stat.child.0.rankbyscalarrank = true
+stat.child.1 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.statistics.MPMO_SimpleLGPStatistics
+stat.child.1.file = $outprogram.stat
+stat.child.1.rankbyscalarrank = true
+
+generations = 200
+quit-on-run-complete = true
+
+pop = ec.Population
+pop.subpops = 1
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.size =	100
+pop.subpop.1 = ec.Subpopulation
+pop.subpop.1.size =	100
+pop.subpop.2 = ec.Subpopulation
+pop.subpop.2.size =	100
+
+breed.elite.0 = 6
+breed.elitebyscalarrank.0 = true
+breed.elite.1 = 3
+breed.elite.2 = 3
+#breed.reevaluate-elites.0 = true
+
+
+# ==============================
+# GP general parameters
+# ==============================
+
+# GP initializer
+init = ec.gp.GPInitializer
+
+# GP population parameters
+pop.subpop.0.species = zhixing.cpxInd.species.CpxGPSpecies
+pop.subpop.0.species.ind = zhixing.djss.algorithm.multitask.MultipopMultioutreg.individual.LGPIndividual_MPMO4DJSS
+pop.subpop.0.species.ind.maxnumtrees = 50
+pop.subpop.0.species.ind.minnumtrees = 1
+pop.subpop.0.species.ind.init_maxnumtrees = 10
+pop.subpop.0.species.ind.init_minnumtrees = 1
+pop.subpop.0.species.ind.numregisters = 8
+pop.subpop.0.species.ind.rate_flowoperator = 0.2
+pop.subpop.0.species.ind.max_itertimes = 100
+pop.subpop.0.species.ind.effective_initial = true
+pop.subpop.0.species.ind.tree.0 = zhixing.cpxInd.individual.GPTreeStruct
+pop.subpop.0.species.ind.tree.0.tc = tc0
+pop.subpop.0.species.ind.num-output-register = 3
+pop.subpop.0.species.ind.output-register.0 = 0
+pop.subpop.0.species.ind.output-register.1 = 1
+pop.subpop.0.species.ind.output-register.2 = 2
+pop.subpop.0.species.ind.skillfactor = 0
+
+
+#pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
+#pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.0.species.fitness = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.fitness.MultitaskMultiObjectiveFitness
+pop.subpop.0.species.fitness.num-objectives = 3
+pop.subpop.0.species.fitness.maximize.0 = false
+pop.subpop.0.species.fitness.maximize.1 = false
+pop.subpop.0.species.fitness.maximize.2 = false
+pop.subpop.0.duplicate-retries = 100
+
+# GP breeding pipeline
+pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.generate-max = false
+pop.subpop.0.species.pipe.num-sources = 5
+#pop.subpop.0.species.pipe.source.0 = zhixing.cpxInd.individual.reproduce.LGPMicroMutationPipeline
+pop.subpop.0.species.pipe.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.LGPMicroMutation_Specific
+pop.subpop.0.species.pipe.source.0.prob = 0.3
+pop.subpop.0.species.pipe.source.0.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SpecificIns
+
+#pop.subpop.0.species.pipe.source.1 = zhixing.cpxInd.individual.reproduce.LGPMacroMutationPipeline
+pop.subpop.0.species.pipe.source.1 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.LGPMacroMutation_Specific
+pop.subpop.0.species.pipe.source.1.prob = 0.3
+pop.subpop.0.species.pipe.source.1.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SpecificIns
+
+#pop.subpop.0.species.pipe.source.2 = zhixing.cpxInd.individual.reproduce.GraphCrossover
+#pop.subpop.0.species.pipe.source.2 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.GraphXov_SpecificIns
+pop.subpop.0.species.pipe.source.2 = zhixing.djss.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TwoPointXov_SpecificIns4DJSS
+#pop.subpop.0.species.pipe.source.2 = zhixing.djss.algorithm.multitask.MultipopMultioutreg.individual.reproduce.LongPlateMate4DJSS
+#pop.subpop.0.species.pipe.source.2 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.SelectiveMerge
+pop.subpop.0.species.pipe.source.2.prob = 0.25
+#pop.subpop.0.species.pipe.source.2.source.0.size = 3
+pop.subpop.0.species.pipe.source.2.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SpecificIns
+pop.subpop.0.species.pipe.source.2.source.1 = same
+
+pop.subpop.0.species.pipe.source.3 = ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.3.prob = 0.05
+pop.subpop.0.species.pipe.source.3.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SpecificIns
+
+pop.subpop.0.species.pipe.source.4 = zhixing.djss.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TwoPointXov_SpecificIns4DJSS
+pop.subpop.0.species.pipe.source.4.prob = 0.1
+pop.subpop.0.species.pipe.source.4.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SpecificIns
+pop.subpop.0.species.pipe.source.4.source.1 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SpecificIns
+#pop.subpop.0.species.pipe.source.4.source.0.size = 4
+
+
+# Selection for reproduction
+breed.reproduce.source.0 = zhixing.cpxInd.algorithm.multitask.MFEA.individual.reproduce.TournamentSelection_ScalarRank
+#breed.reproduce.source.0 = ec.select.TournamentSelection
+#breed.reproduce.re-evaluate = true
+
+# Koza crossover parameters
+#gp.koza.xover.source.0 = ec.select.TournamentSelection
+gp.koza.xover.source.0 = zhixing.cpxInd.algorithm.multitask.MFEA.individual.reproduce.TournamentSelection_ScalarRank
+gp.koza.xover.source.1 = same
+gp.koza.xover.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+gp.koza.xover.ns.1 = same
+gp.koza.xover.maxdepth = 3
+gp.koza.xover.tries = 10
+
+#LGP 2-point crossover parameters
+lgp.2pcross.maxseglength = 30
+lgp.2pcross.maxlendiffseg = 5
+lgp.2pcross.maxdistancecrosspoint = 30
+lgp.2pcross.micro_base = zhixing.cpxInd.individual.reproduce.LGPMicroMutationPipeline
+#lgp.2pcross.micro_base = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.LGPMicroMutation_Specific
+
+#LGP graph-based crossover parameters
+lgp.graph_cross.max_graph_diff = 10
+lgp.graph_cross.protect_sub_graph = 1
+lgp.graph_cross.maxgraphsize = 20
+lgp.graph_cross.maxdistancecrosspoint = 30
+lgp.graph_cross.micro_base = zhixing.cpxInd.individual.reproduce.LGPMicroMutationPipeline
+
+lgp.shared_graph_cross_MT.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SharedIns
+lgp.shared_graph_cross_MT.source.1 = same
+
+lgp.tournament_specific.size2 = 3
+
+lgp.specific_graph_cross_MT.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SharedIns
+lgp.specific_graph_cross_MT.source.1 = same
+
+lgp.specific_2p_cross_MT.source.0 = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.TournamentSel_SpecificIns
+lgp.specific_2p_cross_MT.source.1 = same
+
+# Koza mutation parameters
+#gp.koza.mutate.source.0 = ec.select.TournamentSelection
+gp.koza.mutate.source.0 = zhixing.cpxInd.algorithm.multitask.MFEA.individual.reproduce.TournamentSelection_ScalarRank
+gp.koza.mutate.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+gp.koza.mutate.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+gp.koza.mutate.maxdepth = 3
+gp.koza.mutate.tries = 10
+
+lgp.micromut.step = 1
+lgp.micromut.effective = true
+lgp.micromut.probfunc = 0.5
+lgp.micromut.probcons = 0.125
+lgp.micromut.probwritereg = 0.25
+lgp.micromut.probreadreg = 0.125
+lgp.micromut.conststep = 10
+
+#LGP macro mutation parameters
+lgp.macromut.type = effmut
+lgp.macromut.step = 1
+lgp.macromut.prob_insert = 0.67
+lgp.macromut.prob_delete = 0.33
+#lgp.macromut.micro_base = zhixing.cpxInd.individual.reproduce.LGPMicroMutationPipeline
+lgp.macromut.micro_base = zhixing.cpxInd.algorithm.multitask.MultipopMultioutreg.individual.reproduce.LGPMicroMutation_Specific
+
+#LGP origin-based 2-point crossover
+#other parameters are inherited from CrossoverPipeline and LGP2PCrossover
+lgp.multitask.ob2pcross.toss = true
+
+# Tournament selection, for reproduction, crossover and mutation
+select.tournament.size = 7
+
+# Koza grow parameters, for mutation
+gp.koza.grow.min-depth = 3
+gp.koza.grow.max-depth = 3
+gp.koza.grow.prob_constant = 0.5
+
+# LGP node selector, for crossover and mutation
+lgp.ns.nonterminals = 0.25
+lgp.ns.root = 0.25
+lgp.ns.constants = 0.25
+lgp.ns.read_registers = 0.25
+
+# GP atomic (a) and set (s) type parameters
+gp.type.a.size = 1
+gp.type.a.0.name = nil
+gp.type.s.size = 0
+
+# GP tree constraints
+gp.tc.size = 1
+gp.tc.0 = ec.gp.GPTreeConstraints
+gp.tc.0.name = tc0
+gp.tc.0.fset = f0
+gp.tc.0.returns = nil
+gp.tc.0.init = ec.gp.koza.HalfBuilder
+
+# Koza half-ramp-and-ramp parameters, for gp.tc.0.init
+gp.koza.half.min-depth = 3
+gp.koza.half.max-depth = 3
+gp.koza.half.growp = 0.0
+gp.koza.half.prob_constant = 0.5
+
+# GP node constraints (nc[k] means the node takes k children), no other constraint
+gp.nc.size = 7
+
+gp.nc.0 = ec.gp.GPNodeConstraints
+gp.nc.0.name = nc0
+gp.nc.0.returns = nil
+gp.nc.0.size = 0
+
+gp.nc.1 = ec.gp.GPNodeConstraints
+gp.nc.1.name = nc1
+gp.nc.1.returns = nil
+gp.nc.1.size = 1
+gp.nc.1.child.0 = nil
+
+gp.nc.2 = ec.gp.GPNodeConstraints
+gp.nc.2.name = nc2
+gp.nc.2.returns = nil
+gp.nc.2.size = 2
+gp.nc.2.child.0 = nil
+gp.nc.2.child.1 = nil
+
+gp.nc.3 = ec.gp.GPNodeConstraints
+gp.nc.3.name = nc3
+gp.nc.3.returns = nil
+gp.nc.3.size = 3
+gp.nc.3.child.0 = nil
+gp.nc.3.child.1 = nil
+gp.nc.3.child.2 = nil
+
+gp.nc.4 = ec.gp.GPNodeConstraints
+gp.nc.4.name = nc4
+gp.nc.4.returns = nil
+gp.nc.4.size = 4
+gp.nc.4.child.0 = nil
+gp.nc.4.child.1 = nil
+gp.nc.4.child.2 = nil
+gp.nc.4.child.3 = nil
+
+gp.nc.5 = ec.gp.GPNodeConstraints
+gp.nc.5.name = nc5
+gp.nc.5.returns = nil
+gp.nc.5.size = 5
+gp.nc.5.child.0 = nil
+gp.nc.5.child.1 = nil
+gp.nc.5.child.2 = nil
+gp.nc.5.child.3 = nil
+gp.nc.5.child.4 = nil
+
+gp.nc.6 = ec.gp.GPNodeConstraints
+gp.nc.6.name = nc6
+gp.nc.6.returns = nil
+gp.nc.6.size = 6
+gp.nc.6.child.0 = nil
+gp.nc.6.child.1 = nil
+gp.nc.6.child.2 = nil
+gp.nc.6.child.3 = nil
+gp.nc.6.child.4 = nil
+gp.nc.6.child.5 = nil
+
+# GP ADF parameters
+gp.problem.stack = ec.gp.ADFStack
+gp.adf-stack.context = ec.gp.ADFContext
+
+# ==============================
+# GP problem specific parameters
+# ==============================
+
+# GP function set parameters
+gp.fs.size = 1
+gp.fs.0.name = f0
+gp.fs.0.size = 9
+gp.fs.0.func.0 = yimei.jss.gp.terminal.TerminalERCUniform
+gp.fs.0.func.0.nc = nc0
+gp.fs.0.func.1 = yimei.jss.gp.function.Add
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = yimei.jss.gp.function.Sub
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = yimei.jss.gp.function.Mul
+gp.fs.0.func.3.nc = nc2
+gp.fs.0.func.4 = yimei.jss.gp.function.Div
+gp.fs.0.func.4.nc = nc2
+gp.fs.0.func.5 = yimei.jss.gp.function.Max
+gp.fs.0.func.5.nc = nc2
+gp.fs.0.func.6 = yimei.jss.gp.function.Min
+gp.fs.0.func.6.nc = nc2
+gp.fs.0.func.7 = zhixing.cpxInd.individual.primitive.WriteRegisterGPNode
+gp.fs.0.func.7.numregisters = 8
+gp.fs.0.func.7.nc = nc1
+gp.fs.0.func.8 = zhixing.cpxInd.individual.primitive.ReadRegisterGPNode
+gp.fs.0.func.8.numregisters = 8
+gp.fs.0.func.8.nc = nc0
+#gp.fs.0.func.9 = zhixing.cpxInd.individual.primitive.IFLargerThan
+#gp.fs.0.func.9.maxbodylength = 3
+#gp.fs.0.func.9.nc = nc2
+
+
+# ==============================
+# The output format
+# ==============================
+#gp.tree.print-style = c
+#pop.subpop.0.species.ind.tree.0.c-operators = false
+#gp.tree.print-style = dot
+
+# ==============================
+# The problem
+# ==============================
+
+eval.num_task = 3
+eval.problem.eval-model.sim-seed=8
+eval.problem = zhixing.djss.algorithm.multitask.MultipopMultioutreg.individualoptimization.MPMO_IndividualOptimizationProblem
+eval.problem.data = yimei.jss.gp.data.DoubleData
+eval.problem.eval-model = zhixing.djss.algorithm.multitask.MultipopMultioutreg.individualevaluation.MPMO_MT_EvaluationModel4Ind
+eval.problem.eval-model.objectives = 3
+eval.problem.eval-model.objectives.0 = mean-weighted-tardiness
+eval.problem.eval-model.objectives.1 = mean-weighted-tardiness
+eval.problem.eval-model.objectives.2 = mean-weighted-tardiness
+eval.problem.eval-model.sim-models = 3
+eval.problem.eval-model.sim-models.0.util-level = 0.95
+eval.problem.eval-model.sim-models.1.util-level = 0.85
+eval.problem.eval-model.sim-models.2.util-level = 0.75
+
+eval.problem.eval-model.sim-models.0.output_register = 0
+eval.problem.eval-model.sim-models.1.output_register = 1
+eval.problem.eval-model.sim-models.2.output_register = 2
+
+eval.problem.eval-model.sim-models.0.due-date-factor = 1.5
+eval.problem.eval-model.sim-models.1.due-date-factor = 1.5
+eval.problem.eval-model.sim-models.2.due-date-factor = 1.5
+eval.problem.eval-model.rotate-sim-seed = true
+
+terminals-from = relative
