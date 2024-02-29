@@ -52,7 +52,7 @@ public class Parser {
 
 	public static void main(String[] args) {
 
-        String path = "D:\\����thinking\\����\\JobShopScheduling\\GrammarLGP\\results\\";
+        String path = "D:\\xxxxx\\";
         String algo = "LGP_baseline_8reg";
         String scenario = "mean-weighted-tardiness-0.95-1.5";
 
