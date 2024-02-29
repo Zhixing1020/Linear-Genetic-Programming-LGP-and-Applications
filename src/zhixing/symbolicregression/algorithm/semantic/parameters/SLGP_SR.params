@@ -393,6 +393,6 @@ gp.fs.0.func.11.nc = nc1
 eval.problem=zhixing.symbolicregression.optimization.GPSymbolicRegression
 eval.problem.data=yimei.jss.gp.data.DoubleData
 
-#SRproblem.location = E:\\eclipse\\eclipse\\GPJSS-basicLGP\\src\\zhixing\\symbolicregression\\dataset\\
+#SRproblem.location = E:\\GPJSS-basicLGP\\src\\zhixing\\symbolicregression\\dataset\\
 SRproblem.dataname = R1
 SRproblem.fitness = RSE
