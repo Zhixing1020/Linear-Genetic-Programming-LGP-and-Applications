@@ -419,7 +419,7 @@ public class MPMO_LGPStatistics4DJSS extends LGPStatistics{
 	
 //	void debug_meanNstd(EvolutionState state) throws IOException{
 //		Vector <Double> Mean_v = new Vector<>(), Std_v = new Vector<>();
-//		OutputStream f = new FileOutputStream("E:/eclipse/eclipse/GPJSS-basicLGP/debug_meanNstd.txt");
+//		OutputStream f = new FileOutputStream("E:/GPJSS-basicLGP/debug_meanNstd.txt");
 //		OutputStreamWriter writer = new OutputStreamWriter(f);
 //		
 //		for(int y=0; y<state.population.subpops[0].individuals.length; y++){
