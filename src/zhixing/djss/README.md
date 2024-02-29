@@ -33,6 +33,7 @@ The format of `outtabular.stat` is
 "[Generation index] [Population mean fitness]\t[Best fitness per generation]\t[Best fitness so far]\t[Population mean absolutate program length]\t[Population mean effective program length]\t[Population average effective rate]\t[Absolute program length of the best individual]\t[Effective program length of the best individual]\t[Effective rate of the best individual]\t[running time so far in seconds]".
 In the batch running model, you are required to define the name of the results files by yourselves. For example,
 ```-p stat.file=[home directory]/job.((ARRAY_TASK_ID)).out.stat -p stat.child.0.file=[home directory]/job.((ARRAY_TASK_ID)).outtabular.stat``` where ARRAY_TASK_ID is the ID of each run in the batch model.
+The example result files `out.stat` and `outtabular.stat` are given in the repository home directory.
 
 [1] Zhixing Huang, Yi Mei, Fangfang Zhang, and Mengjie Zhang, “A Further Investigation to Improve Linear Genetic Programming in Dynamic Job Shop Scheduling,” in Proceedings of IEEE Symposium Series on Computational Intelligence, 2022, pp. 496–503. doi: 10.1109/SSCI51031.2022.10022208.
 
