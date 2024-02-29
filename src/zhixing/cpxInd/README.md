@@ -2,12 +2,12 @@
 
 * `cpxInd/algorithm` defines the advanced LGP algorithms. The algorithms in `cpxInd/algorithm` include several common packages: `EvolutionState`, `individual`, and `statistics`. `EvolutionState` defines the evolutionary framework of the advanced LGP. For example, the `Grammar/EvolutionState/EvolutionState4Grammar` defines an interface of necessary functions in the evolutionary framework of grammar-guided LGP. `individual` defines the advanced LGP individuals, their primitives (`individual/primitives`), and genetic operators (`individual/reproduce`). `statistics` defines the logging operations for advanced algorithms.
 
-  - `Grammar` [grammar-guided linear genetic programming](./cpxInd/algorithm/Grammar).
-  - `Graphbased` [graph-based search mechanisms of linear genetic programming](./cpxInd/algorithm/Graphbased)
-  - `LandscapeOptimization` [fitness landscape optimization for stochastic symbolic search](./cpxInd/algorithm/LandscapeOptimization)
-  - `Multiform` [Multi-Representation GP: a case study of tree-based and linear representation](./cpxInd/algorithm/Multiform)
-  - `multitask` [multitask linear genetic programming](./cpxInd/algorithm/multitask)
-  - `semantic` [semantic linear genetic programming](./cpxInd/algorithm/semantic)
+  - `Grammar` [grammar-guided linear genetic programming](./algorithm/Grammar).
+  - `Graphbased` [graph-based search mechanisms of linear genetic programming](./algorithm/Graphbased)
+  - `LandscapeOptimization` [fitness landscape optimization for stochastic symbolic search](./algorithm/LandscapeOptimization)
+  - `Multiform` [Multi-Representation GP: a case study of tree-based and linear representation](./algorithm/Multiform)
+  - `multitask` [multitask linear genetic programming](./algorithm/multitask)
+  - `semantic` [semantic linear genetic programming](./algorithm/semantic)
 
 * `cpxInd/individual` contains the core classes of LGP individual (mainly in `individual/LGPIndividual.java`).
   - `individual/primitive` contains the core classes of the newly introduced primitives in LGP (e.g., Read- or WriteRegister, FlowOperators).
