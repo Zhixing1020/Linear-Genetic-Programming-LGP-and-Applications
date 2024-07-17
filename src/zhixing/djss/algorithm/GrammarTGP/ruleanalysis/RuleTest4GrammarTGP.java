@@ -66,11 +66,11 @@ public class RuleTest4GrammarTGP  extends RuleTest4LGP{
             for (int j = 0; j < result.getGenerationalRules().size(); j++) {
             	if(j == result.getGenerationalRules().size()-1) {
             		result.getGenerationalRule(j).calcFitnessInd(
-                            result.getGenerationalTestFitness(j), null, testSet, objectives);
+                            result.getGenerationalTestFitness(j), state, testSet, objectives);
             	}
             	else if(j % (int)Math.ceil(result.getGenerationalRules().size()/50.0) == 0){
             		result.getGenerationalRule(j).calcFitnessInd(
-                            result.getGenerationalTestFitness(j), null, testSet, objectives);
+                            result.getGenerationalTestFitness(j), state, testSet, objectives);
             	}
             	else{
             		double[] fitnesses = new double[objectives.size()];
@@ -195,6 +195,11 @@ public class RuleTest4GrammarTGP  extends RuleTest4LGP{
 		for (int i = 0; i < numObjectives; i++) {
 			ruleTest.addObjective(args[idx++]);
 		}
+		
+		if(idx < args.length) {
+			ruleTest.addParamsfile(args[idx++], args);
+		}
+		
 		ruleTest.writeToCSV();
 		
 	}
