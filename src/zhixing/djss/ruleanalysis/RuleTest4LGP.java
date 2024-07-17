@@ -33,6 +33,8 @@ public class RuleTest4LGP extends yimei.jss.ruleanalysis.RuleTest {
 	protected int numRegs;
 	protected int maxIterations;
 	protected boolean isMultiObj;
+	
+	protected EvolutionState state=null;
     
 	public RuleTest4LGP(String trainPath,int numRuns,
             String testScenario, String testSetName, int numReg, int maxIter, boolean isMO) {
@@ -40,6 +42,29 @@ public class RuleTest4LGP extends yimei.jss.ruleanalysis.RuleTest {
 		numRegs = numReg;
 		maxIterations = maxIter;
 		isMultiObj = isMO;
+		
+	}
+	
+	public void addParamsfile(String filepath, String[] args) {
+		String paramsfile = filepath;
+		
+		ParameterDatabase parameters = null;
+        state = null;
+        if(paramsfile != null) {
+        	try
+            {
+            	parameters = new ParameterDatabase(new File(paramsfile), args);
+            }
+        catch(Exception e)
+            {
+            e.printStackTrace();
+            Output.initialError("An exception was generated upon reading the parameter file \"" + paramsfile + "\".\nHere it is:\n" + e); 
+            }
+        	
+        	state = Evolve.initialize(parameters, 0);
+        	
+        	state.setup(state, null);
+        }
 	}
 	
 	public SchedulingSet4Ind generateTestSet4Ind() {
@@ -71,7 +96,7 @@ public class RuleTest4LGP extends yimei.jss.ruleanalysis.RuleTest {
             File sourceFile = new File(trainPath + "job." + i + ".out.stat");
 
             TestResult4CpxGP result = TestResult4CpxGP.readFromFile(sourceFile, numRegs, maxIterations, isMultiObj);
-
+            
             //File timeFile = new File(trainPath + "job." + i + ".time.csv");
             //result.setGenerationalTimeStat(ResultFileReader.readTimeFromFile(timeFile));
 
@@ -83,11 +108,11 @@ public class RuleTest4LGP extends yimei.jss.ruleanalysis.RuleTest {
             for (int j = 0; j < result.getGenerationalRules().size(); j++) {
             	if(j == result.getGenerationalRules().size()-1) {
             		result.getGenerationalRule(j).calcFitnessInd(
-                            result.getGenerationalTestFitness(j), null, testSet, objectives);
+                            result.getGenerationalTestFitness(j), state, testSet, objectives);
             	}
             	else if(j % (int)Math.ceil(result.getGenerationalRules().size()/50.0) == 0 ){
             		result.getGenerationalRule(j).calcFitnessInd(
-                            result.getGenerationalTestFitness(j), null, testSet, objectives);
+                            result.getGenerationalTestFitness(j), state, testSet, objectives);
             	}
             	else{
             		double[] fitnesses = new double[objectives.size()];
@@ -208,6 +233,11 @@ public class RuleTest4LGP extends yimei.jss.ruleanalysis.RuleTest {
 		for (int i = 0; i < numObjectives; i++) {
 			ruleTest.addObjective(args[idx++]);
 		}
+		
+		if(idx < args.length) {
+			ruleTest.addParamsfile(args[idx++], args);
+		}
+		
 		ruleTest.writeToCSV();
 		
 	}
