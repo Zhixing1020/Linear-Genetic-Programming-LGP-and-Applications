@@ -1,6 +1,7 @@
 package zhixing.djss.individual;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,8 +109,13 @@ public interface LGPInterface4DJSS extends CpxGPInterface4DJSS {
 //		JobShopAttribute list[] = JobShopAttribute.relativeAttributes();
 		ArrayList<JobShopAttribute> list = new ArrayList<>();
 		
-		for(GPNode gpn : ((GPRuleEvolutionState)state).getTerminals()) {
-			list.add(((AttributeGPNode)gpn).getJobShopAttribute());
+		if(state != null) {
+			for(GPNode gpn : ((GPRuleEvolutionState)state).getTerminals()) {
+				list.add(((AttributeGPNode)gpn).getJobShopAttribute());
+			}
+		}
+		else { //by default, use relative attributes to initialize registers
+			list = new ArrayList<>(Arrays.asList(JobShopAttribute.relativeAttributes()));
 		}
 				
 	    LGPind.setInitReg_values(new AttributeGPNode [LGPind.getNumRegs()]);
