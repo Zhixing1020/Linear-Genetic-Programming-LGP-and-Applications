@@ -151,6 +151,9 @@ public class RuleAnalysis4GrammarLGP extends RuleTest4LGP{
 				"mean-weighted-tardiness-0.95-1.5",
 		};
 		
+		if(idx < args.length) {
+			ruleTest.addParamsfile(args[idx++], args);
+		}		
 		
 		for(String s : scenarios) {
 			ruleTest.writeToTXT(s);
