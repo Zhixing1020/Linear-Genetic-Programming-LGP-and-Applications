@@ -11,7 +11,7 @@ import zhixing.cpxInd.individual.GPTreeStruct;
 import zhixing.cpxInd.individual.LGPDefaults;
 import zhixing.cpxInd.individual.LGPIndividual;
 
-public class LGPSwapPipeline extends MutationPipeline {
+public class LGPSwapPipeline extends LGPMicroMutationPipeline {
 
 	public static final String SWAP = "swap";
 	public static final String P_EFFFLAG = "effective"; //swap effective instructions or not
