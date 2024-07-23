@@ -409,6 +409,100 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
         }
 	}
 	
+	public double[] getOutputs(final Individual ind) {
+		
+		if (!ind.evaluated)  // don't bother reevaluating
+        {
+			 double [] real = new double [datanum]; 
+			 double [] predict = new double [datanum]; 
+			 
+	         DoubleData input = (DoubleData)(this.input);
+	     
+	         int hits = 0;
+	         double sum = 0.0;
+	         double expectedResult;
+	         double result = 0;
+	         for (int y=0;y<datanum;y++)
+	         {
+	             
+	             DoubleData tmp = new DoubleData();
+//	             int treeNum = ((LGPIndividual)ind).getTreesLength();
+	             
+	             X = new double[datadim];
+	             for(int d = 0; d<datadim; d++) {
+//	            	 X[d] = data[y][d];
+	            	 X[d] = normdata[y][d];
+	             }
+	             
+	           //((LGPIndividual4SR)ind).resetRegisters(this);
+//	             LGPIndividual4SR.resetRegisters(this, 1.0, (LGPIndividual) ind);
+//	             
+//	     		for(int index = 0; index<treeNum; index++){
+//	     			GPTreeStruct tree = ((LGPIndividual)ind).getTreeStruct(index);
+//	     			if(tree.status) {
+//	     				tree.child.eval(null, 0, tmp, null, (LGPIndividual)ind, this);
+//		        			 if(((LGPIndividual)ind).getRegisters()[((WriteRegisterGPNode)tree.child).getIndex()] 
+//		        					 >= Double.POSITIVE_INFINITY) {
+//		 	                	int a =1;
+//		 	                }
+//	     			}
+//	     			
+//	     		}
+	     		
+	     		predict[y] = ((CpxGPInterface4SR)ind).execute(null, 0, tmp, stack, (GPIndividual) ind, this);
+	     		predict[y] = predict[y]*out_std + out_mean;
+	     		
+	     		real[y] = data_output[y];
+//	     		predict[y] = ((LGPIndividual)ind).getRegisters()[0];
+	     		
+	     		 if(predict[y] >= Double.POSITIVE_INFINITY || Double.isNaN(predict[y])) {
+		             	predict[y] = 1e6;
+		             }
+	     		
+	     		result = Math.abs(real[y] - predict[y]);
+
+	             if (result <= 0.01) hits++;        
+	        }
+	         
+	         
+	         if(fitness.equals("RMSE")) {
+	        	 result = getRMSE(real, predict);
+	         }
+	         else if (fitness.equals("MSE")) {
+	        	 result = getMSE(real, predict);
+	         }
+	         else if (fitness.equals("R2")) {
+	        	 result = getR2(real, predict);
+	         }
+	         else if(fitness.equals("RSE")) {
+	        	 result = getRSE(real, predict);
+	         }
+	         else {
+	        	 System.err.print("unknown fitness objective "+fitness);
+	        	 System.exit(1);
+	         }
+			
+			// the fitness better be KozaFitness!
+//	        KozaFitness f = ((KozaFitness)ind.fitness);
+//	        f.setStandardizedFitness(state, result);
+	        
+	        double[] fitnesses = new double[1];
+	        fitnesses[0] = result;
+	        if(ind.fitness == null) {
+	        	ind.fitness = new MultiObjectiveFitness();
+	        }
+	        MultiObjectiveFitness f = (MultiObjectiveFitness) ind.fitness;
+//	        f.objectives = fitnesses;
+           f.objectives = new double[1];
+			f.setObjectives(null, fitnesses);
+//	        f.hits = hits;
+	        ind.evaluated = true;
+	        
+	        return predict;
+       }
+		
+		return null;
+	}
 	
 	protected double getRMSE(double[] real, double[] predict) {
 		double res = 0;
