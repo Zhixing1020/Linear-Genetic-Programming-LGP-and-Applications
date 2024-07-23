@@ -324,21 +324,22 @@ public class GPFunctionSet implements Clique
             if(gpfi instanceof InputFeatureGPNode) {
             	Parameter pp_numreg = pp.push(P_SIZE);
             	int range = state.parameters.getInt(pp_numreg,null,0);
-            	GPNode gpfit = new InputFeatureGPNode(0,range);
-        		gpfit.setup(state, pp);
-        		tmp.addElement(gpfit);
+            	((InputFeatureGPNode)gpfi).setRange(range);
+//            	GPNode gpfit = new InputFeatureGPNode(0,range);
+//        		gpfit.setup(state, pp);
+        		tmp.addElement(gpfi);
         		
         		// Load into the nodesByName hashtable
-                GPNode[] nodes = (GPNode[])(nodesByName.get(gpfit.name()));
+                GPNode[] nodes = (GPNode[])(nodesByName.get(gpfi.name()));
                 if (nodes == null)
-                    nodesByName.put(gpfit.name(), new GPNode[] { gpfit });
+                    nodesByName.put(gpfi.name(), new GPNode[] { gpfi });
                 else
                     {
                     // O(n^2) but uncommon so what the heck.
                     GPNode[] nodes2 = new GPNode[nodes.length + 1];
                     System.arraycopy(nodes, 0, nodes2, 0, nodes.length);
-                    nodes2[nodes2.length - 1] = gpfit;
-                    nodesByName.put(gpfit.name(), nodes2);
+                    nodes2[nodes2.length - 1] = gpfi;
+                    nodesByName.put(gpfi.name(), nodes2);
                     }
             }
             else if(gpfi instanceof WriteRegisterGPNode){
