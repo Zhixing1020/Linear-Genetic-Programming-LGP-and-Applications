@@ -15,8 +15,8 @@ import ec.gp.GPNode;
 import zhixing.symbolicregression.optimization.GPSymbolicRegression;
 
 public class InputFeatureGPNode extends GPNode{
-	private int index;
-	private static int range;
+	protected int index;
+	protected static int range;
 	
     public InputFeatureGPNode(int ind, int size) {
         super();
