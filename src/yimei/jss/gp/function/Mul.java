@@ -60,6 +60,13 @@ public class Mul extends GPNode {
 
 		children[1].eval(state,thread,input,stack,individual,problem);
 		rd.value = result * rd.value;
+
+	    if (rd.value > 1e6) {
+			rd.value = 1e6;
+		}
+		if(rd.value < -1e6) {
+			rd.value = -1e6;
+		}
     }
     
   //=====================for Grammar LGP, zhixing 2022.12.27===================
