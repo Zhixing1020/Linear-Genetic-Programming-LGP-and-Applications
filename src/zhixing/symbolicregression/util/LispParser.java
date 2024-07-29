@@ -43,7 +43,7 @@ public class LispParser {
     }
 
 	
-	private static GPNode parseNode(String expression) {
+	protected static GPNode parseNode(String expression) {
         GPNode node = null;
 
         if (expression.charAt(0) == '(') {
