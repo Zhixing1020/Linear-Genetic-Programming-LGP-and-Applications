@@ -23,6 +23,9 @@ public abstract class CpxGPIndividual extends GPIndividual{
 
     public static final String P_NUMTREES = "numtrees";
     public static final String P_TREE = "tree";
+    public static final String P_TOWRAP = "to-wrap";
+    
+    protected boolean towrap = false;
     
     public abstract void rebuildIndividual(EvolutionState state, int thread);
     
@@ -66,7 +69,9 @@ public abstract class CpxGPIndividual extends GPIndividual{
 	
 	@Override
 	public Object clone(){
-		return super.clone_extensive();
+		CpxGPIndividual obj =(CpxGPIndividual) super.clone_extensive();
+		obj.towrap = this.towrap;
+		return obj;
 	}
 
 	/** Like clone(), but doesn't force the GPTrees to deep-clone themselves. */
@@ -85,4 +90,11 @@ public abstract class CpxGPIndividual extends GPIndividual{
 //        final Problem problem);
 	
 //	public void prepareExecution(EvolutionState state){};
+	
+	//the wrapper applies polynomial regression to fine tune the final output of GP programs, returns the tuned outputs. 
+	public abstract double [] wrapper(EvolutionState state, int thread, GPData input, ADFStack stack, GPIndividual individual, double [] predict, double [] target);
+	
+	public boolean IsWrap() {return towrap;}
+	
+	public abstract Object getWrapper();
 }

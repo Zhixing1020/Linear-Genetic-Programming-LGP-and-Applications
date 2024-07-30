@@ -16,13 +16,19 @@ import org.apache.commons.math3.util.Pair;
 
 import ec.EvolutionState;
 import ec.Problem;
+import ec.gp.ADFStack;
+import ec.gp.GPData;
+import ec.gp.GPIndividual;
 import ec.gp.GPInitializer;
 import ec.gp.GPNode;
 import ec.gp.GPTree;
 import ec.util.Code;
 import ec.util.Output;
 import ec.util.Parameter;
+import yimei.jss.gp.function.Add;
+import yimei.jss.gp.function.Mul;
 import zhixing.cpxInd.individual.primitive.Branching;
+import zhixing.cpxInd.individual.primitive.ConstantGPNode;
 import zhixing.cpxInd.individual.primitive.FlowOperator;
 import zhixing.cpxInd.individual.primitive.Iteration;
 import zhixing.cpxInd.individual.primitive.ReadRegisterGPNode;
@@ -66,6 +72,7 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	//protected double constant_registers[] = null;
 	
 	protected ArrayList<GPTreeStruct> treelist;
+	protected ArrayList<GPTreeStruct> wraplist;
 	
 	protected LGPFlowController flowctrl;
 	
@@ -87,6 +94,10 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	     
 		 // set my evaluation to false
 		 evaluated = false;
+		 
+		 //set wrapper or not
+		 towrap = state.parameters.getBoolean(base.push(P_TOWRAP), def.push(P_TOWRAP), false);
+		 wraplist = new ArrayList<>();
 	    
 		 // the maximum/minimum number of trees
 	     MaxNumTrees = state.parameters.getInt(base.push(P_MAXNUMTREES),def.push(P_MAXNUMTREES),1);  // at least 1 tree for GP!
@@ -418,6 +429,14 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	        }
 	        x++;
         }
+		
+		if(towrap) {
+			for(GPTreeStruct tree : wraplist) {
+				state.output.print("Ins " + x + ":\t",log);
+				 tree.printTreeForHumans(state,log);
+				 x++;
+			}
+		}
 	}
 	
 	
@@ -525,6 +544,13 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 		this.maxIterTimes = this.getFlowctrl().maxIterTimes = obj.getFlowController().maxIterTimes;
 		
 		this.rateFlowOperator = obj.getrateFlowOperator();
+		
+		this.wraplist = new ArrayList<>();
+		for(GPTreeStruct tree : (ArrayList<GPTreeStruct>)obj.getWrapper()) {
+			GPTreeStruct t = (GPTreeStruct)(tree.clone());
+        	t.owner = this;
+        	this.wraplist.add(t);
+		}
     }
     
     /** Like clone(), but doesn't force the GPTrees to deep-clone themselves. */
@@ -1220,4 +1246,92 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 		return outputRegister;
 	}
 
+	@Override
+	public double [] wrapper(EvolutionState state, int thread, GPData input, ADFStack stack, GPIndividual individual, double [] predict, double [] target) {
+		double mean_pred = 0;
+		double mean_real = 0;
+		double a = 0, b = 0;
+		
+		int n = target.length;
+		if(predict.length != n) {
+			System.err.print("In wrapper, the dimension of predict " + predict.length + " and target " + target.length + " must be the same\n");
+			System.exit(1);
+		}
+		
+		for(int i = 0; i<n; i++) {
+			mean_pred += predict[i];
+			mean_real += target[i];
+		}
+		mean_pred /= n;
+		mean_real /= n;
+		
+		//get a
+		double quo = 0;
+		double div = 0;
+		for(int i = 0; i<n; i++) {
+			quo += (predict[i] - mean_pred)*(target[i] - mean_real);
+			div += (predict[i] - mean_pred)*(predict[i] - mean_pred);
+		}
+		if(div != 0)
+			a = quo / div;
+		else
+			a = 0;
+		
+		//get b
+		b = mean_real - a*mean_pred;
+		
+		//construct the wrap list
+		wraplist.clear();
+		for(int r = 0; r<outputRegister.length; r++) {
+			int index = outputRegister[r];
+			GPTreeStruct cand = new GPTreeStruct();
+			
+			WriteRegisterGPNode desReg = new WriteRegisterGPNode();
+			desReg.setIndex(index);
+			desReg.argposition = (byte) 0;
+			
+			ReadRegisterGPNode srcReg = new ReadRegisterGPNode();
+			srcReg.setIndex(index);
+			srcReg.argposition = (byte) 0;
+			
+			ConstantGPNode A = new ConstantGPNode();
+			A.setValue(a);
+			A.argposition = (byte) 0;
+			ConstantGPNode B = new ConstantGPNode();
+			B.setValue(b);
+			B.argposition = (byte) 0;
+			
+			cand.child = desReg;
+			desReg.children = new GPNode [1];
+			cand.child.children[0] = new Add();
+			cand.child.children[0].children = new GPNode[2];
+			cand.child.children[0].children[0] = new Mul(); 
+			cand.child.children[0].children[0].children = new GPNode[2];
+			cand.child.children[0].children[1] = B;
+			cand.child.children[0].children[0].children[0] = srcReg;
+			cand.child.children[0].children[0].children[1] = A;
+			
+			wraplist.add(cand);
+		}
+		
+		
+		//scale the predict
+		double [] newpred = new double [n];
+		for(int i = 0; i<n; i++) {
+			newpred[i] = a * predict[i] + b;
+			if(newpred[i] > 1e6) {
+				newpred[i] = 1e6;
+			}
+			if(newpred[i] < -1e6) {
+				newpred[i] = -1e6;
+			}
+				
+		}
+		
+		return newpred;
+	}
+	
+	public Object getWrapper() {
+		return wraplist;
+	}
 }
