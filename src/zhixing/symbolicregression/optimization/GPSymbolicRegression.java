@@ -21,6 +21,7 @@ import ec.multiobjective.MultiObjectiveFitness;
 import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import zhixing.cpxInd.algorithm.semantic.individual.SLGPIndividual;
+import zhixing.cpxInd.individual.CpxGPIndividual;
 import zhixing.symbolicregression.individual.CpxGPInterface4SR;
 
 public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm {
@@ -286,6 +287,11 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	             if (result <= 0.01) hits++;        
 	        }
 	         
+	         if(ind instanceof CpxGPIndividual) {
+				 if(((CpxGPIndividual)ind).IsWrap() ) {
+					predict = ((CpxGPIndividual)ind).wrapper(state, threadnum, input, stack, null, predict, real);
+				 }
+			 }
 	         
 	         if(fitness.equals("RMSE")) {
 	        	 result = getRMSE(real, predict);
