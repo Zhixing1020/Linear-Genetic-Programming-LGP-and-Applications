@@ -35,6 +35,7 @@ import zhixing.cpxInd.individual.CpxGPIndividual;
 public abstract class TGPIndividual4Grammar  extends CpxGPIndividual {
 	protected byte constraintsNum = 0;
 
+	protected GPTree [] wrapTrees;
 	
 	@Override
 	public void setup(final EvolutionState state, final Parameter base){
@@ -61,6 +62,10 @@ public abstract class TGPIndividual4Grammar  extends CpxGPIndividual {
             
             constraintsNum = trees[x].constraints; //simply assume all trees have the same constraint 
             }
+        
+        //set wrapper or not
+		 towrap = state.parameters.getBoolean(base.push(P_TOWRAP), def.push(P_TOWRAP), false);
+		 wrapTrees = new GPTree[t];
         
         // now that our function sets are all associated with trees,
         // give the nodes a chance to determine whether or not this is
@@ -271,4 +276,14 @@ public abstract class TGPIndividual4Grammar  extends CpxGPIndividual {
 //        input = tmp;
 //        return tmp.value;
 //	}
+	
+	@Override
+	public double [] wrapper(EvolutionState state, int thread, GPData input, ADFStack stack, GPIndividual individual, double [] predict, double [] target) {
+		return null;
+	}
+	
+	@Override
+	public Object getWrapper() {
+		return null;
+	}
 }
