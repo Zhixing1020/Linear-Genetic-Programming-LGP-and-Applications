@@ -3,6 +3,7 @@ package zhixing.symbolicregression.optimization;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.spiderland.Psh.booleanStack;
 import org.spiderland.Psh.intStack;
@@ -33,11 +34,14 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	public static final String LOCATION_P = "location";
 	public static final String DATA_NAME_P = "dataname";
 	public static final String FITNESS_P = "fitness";
+	public static final String NORMALIZE_P = "normalize";
 	
 	protected String location;
 	protected String dataname;
 	protected String fitness;
 	protected boolean istraining;
+	
+	protected boolean normalized = true;
 	
 	public int datanum;
 	public int datadim;
@@ -181,6 +185,8 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 		
 		fitness = state.parameters.getString(base.push(FITNESS_P),def.push(FITNESS_P));
 		
+		normalized = state.parameters.getBoolean(base.push(NORMALIZE_P), def.push(NORMALIZE_P), true);
+		
 		this.setGPSymbolicRegression(location, dataname, fitness, true);
 		
 		//read the data
@@ -250,7 +256,10 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	             X = new double[datadim];
 	             for(int d = 0; d<datadim; d++) {
 //	            	 X[d] = data[y][d];
-	            	 X[d] = normdata[y][d];
+	            	 if(normalized)
+	            		 X[d] = normdata[y][d];
+	            	 else
+	            		 X[d] = data[y][d];
 	             }
 	             
 	             //((LGPIndividual4SR)ind).resetRegisters(this);
@@ -273,7 +282,7 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	            }
 	             
 	            predict[y] = ((CpxGPInterface4SR)ind).execute(state, threadnum, input, stack, (GPIndividual) ind, this);
-	            predict[y] = predict[y]*out_std + out_mean;
+	            if(normalized) predict[y] = predict[y]*out_std + out_mean;
 	     		
 	     		real[y] = data_output[y];
 //	     		predict[y] = ((LGPIndividual)ind).getRegisters()[0];
@@ -345,7 +354,10 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	             X = new double[datadim];
 	             for(int d = 0; d<datadim; d++) {
 //	            	 X[d] = data[y][d];
-	            	 X[d] = normdata[y][d];
+	            	 if(normalized)
+	            		 X[d] = normdata[y][d];
+	            	 else
+	            		 X[d] = data[y][d];
 	             }
 	             
 	           //((LGPIndividual4SR)ind).resetRegisters(this);
@@ -364,7 +376,7 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 //	     		}
 	     		
 	     		predict[y] = ((CpxGPInterface4SR)ind).execute(null, 0, tmp, stack, (GPIndividual) ind, this);
-	     		predict[y] = predict[y]*out_std + out_mean;
+	     		if(normalized) predict[y] = predict[y]*out_std + out_mean;
 	     		
 	     		real[y] = data_output[y];
 //	     		predict[y] = ((LGPIndividual)ind).getRegisters()[0];
@@ -415,6 +427,21 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
         }
 	}
 	
+	public int getDatanum() { return datanum;}
+	public int getDatadim() { return datadim;}
+	public double[][] getData() { 
+		if(normalized) 
+			return normdata;
+		else
+			return data;
+	} 
+	public double[] getDataOutput() { 
+		return data_output;
+	}
+	public boolean isnormalized() {
+		return normalized;
+	}
+	
 	public double[] getOutputs(final Individual ind) {
 		
 		if (!ind.evaluated)  // don't bother reevaluating
@@ -437,7 +464,10 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	             X = new double[datadim];
 	             for(int d = 0; d<datadim; d++) {
 //	            	 X[d] = data[y][d];
-	            	 X[d] = normdata[y][d];
+	            	 if(normalized)
+	            		 X[d] = normdata[y][d];
+	            	 else
+	            		 X[d] = data[y][d];
 	             }
 	             
 	           //((LGPIndividual4SR)ind).resetRegisters(this);
@@ -456,7 +486,7 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 //	     		}
 	     		
 	     		predict[y] = ((CpxGPInterface4SR)ind).execute(null, 0, tmp, stack, (GPIndividual) ind, this);
-	     		predict[y] = predict[y]*out_std + out_mean;
+	     		if(normalized) predict[y] = predict[y]*out_std + out_mean;
 	     		
 	     		real[y] = data_output[y];
 //	     		predict[y] = ((LGPIndividual)ind).getRegisters()[0];

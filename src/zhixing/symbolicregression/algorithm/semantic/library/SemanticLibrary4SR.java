@@ -357,7 +357,7 @@ public class SemanticLibrary4SR extends SemanticLibrary{
 				
 				//set inputs and registers
 				for(int d = 0; d<SRproblem.datadim; d++) {
-					SRproblem.X[d] = SRproblem.normdata[in][d];
+					SRproblem.X[d] = SRproblem.getData()[in][d];
 				}
 				for(int r = 0; r<numRegs; r++) {
 					i_prototype.setRegister(r, inputSV.get(in*numRegs+r));

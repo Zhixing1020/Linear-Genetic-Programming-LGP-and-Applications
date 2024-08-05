@@ -58,16 +58,18 @@ public class SLGPIndividual4SR extends SLGPIndividual implements LGPInterface4SR
 		}
 		
 		//set the input semantic vector
-		if(inputS == null || inputS.size()!= GPSymbolicRegression.normdata.length*this.getNumRegs())
-			inputS = new SemanticVector(GPSymbolicRegression.normdata.length, this.getNumRegs());
+		if(inputS == null || inputS.size()!= ((GPSymbolicRegression)problem).getData().length*this.getNumRegs())
+			inputS = new SemanticVector(((GPSymbolicRegression)problem).getData().length, this.getNumRegs());
 		
 		inputS.setSemByRegister(currentDataIndex, registers);
 		
 		//set the target semantic vector
-		if(targetS == null || targetS.size() != GPSymbolicRegression.normdata.length*this.getNumRegs())
-			targetS = new SemanticVector(GPSymbolicRegression.normdata.length, this.getNumRegs());
+		if(targetS == null || targetS.size() != ((GPSymbolicRegression)problem).getData().length*this.getNumRegs())
+			targetS = new SemanticVector(((GPSymbolicRegression)problem).getData().length, this.getNumRegs());
 		
-		double val = (GPSymbolicRegression.data_output[currentDataIndex] - GPSymbolicRegression.out_mean)/GPSymbolicRegression.out_std;
+		double val = GPSymbolicRegression.data_output[currentDataIndex];
+		if(((GPSymbolicRegression)problem).isnormalized())
+			val = (GPSymbolicRegression.data_output[currentDataIndex] - GPSymbolicRegression.out_mean)/GPSymbolicRegression.out_std;
 		targetS.set(currentDataIndex*this.getNumRegs(), val);
       
 		for(int index = 0; index<this.getTreesLength(); index++){
