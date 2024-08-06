@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import ec.EvolutionState;
 import ec.Problem;
@@ -257,6 +258,11 @@ public class TGPIndividual4SR extends CpxGPIndividual implements TGPInterface4SR
 	
 	@Override
 	public double [] wrapper(EvolutionState state, int thread, GPData input, ADFStack stack, GPIndividual individual, double [] predict, double [] target) {
+		return null;
+	}
+	
+	@Override
+	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list){
 		return null;
 	}
 	

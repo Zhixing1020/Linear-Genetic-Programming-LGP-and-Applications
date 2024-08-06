@@ -33,6 +33,7 @@ import zhixing.cpxInd.individual.primitive.FlowOperator;
 import zhixing.cpxInd.individual.primitive.Iteration;
 import zhixing.cpxInd.individual.primitive.ReadRegisterGPNode;
 import zhixing.cpxInd.individual.primitive.WriteRegisterGPNode;
+import zhixing.cpxInd.util.LinearRegression;
 
 public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInterface4Problem{
 
@@ -1331,7 +1332,120 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 		return newpred;
 	}
 	
+	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list) {
+		
+		double [][] predict = new double [predict_list.size()][predict_list.get(0).length]; //the predict of the current program
+		double [] target = new double [target_list.size()]; //since we linearly regress the output "column-by-column" (target-by-target) 
+		
+		//initialize (transform) the predict
+		for(int i = 0; i<predict.length; i++) {
+			for(int j = 0; j<predict[0].length; j++) {
+				predict[i][j] = predict_list.get(i)[j];
+			}
+		}
+		
+		//predict: 0-axis: instances  1-axis: output registers
+		//target: the target values of all the instances
+		LinearRegression lr = new LinearRegression();
+		
+		//for each time, we only wrap one output register. Only the first-targetNumber output registers are wrapped.
+		wraplist.clear();
+        for(int tar = 0; tar<target_list.get(0).length; tar++) {
+        	
+        	//prepare the target
+        	for(int i = 0; i<target_list.size(); i++) {
+        		target[i] = target_list.get(i)[tar];
+        	}
+        	
+        	lr.fit(predict, target);
+            
+            double [] W = lr.getWeights();
+            
+            GPTreeStruct instr = constructInstr(outputRegister[tar], W);
+            wraplist.add(instr);
+            
+            //update predict
+        	for(int i = 0; i<target_list.size(); i++) {
+        		double tmp =  W[0];
+        		for(int j = 0; j<predict[0].length; j++) {
+        			tmp += W[j+1] * predict[i][j];
+        		}
+        		predict[i][tar] = tmp;
+        		if(predict[i][tar] > 1e6) {
+        			predict[i][tar] = 1e6;
+        		}
+        		if(predict[i][tar] < -1e6) {
+        			predict[i][tar] = -1e6;
+        		}
+        	}
+        }
+        
+        ArrayList<Double[]> newpred = new ArrayList<>();
+        for(int i = 0;i<target_list.size(); i++	) {
+        	Double [] tmp = new Double [target_list.get(0).length];
+        	for(int tar = 0; tar< target_list.get(0).length; tar++) {
+        		tmp [tar] = predict[i][tar];
+        	}
+        	newpred.add(tmp);
+        }
+  		
+  		return newpred;
+	}
+	
 	public Object getWrapper() {
 		return wraplist;
+	}
+	
+	protected GPTreeStruct constructInstr(int OutIndex, double []W){
+		
+		GPTreeStruct cand = new GPTreeStruct();
+		
+		WriteRegisterGPNode desReg = new WriteRegisterGPNode();
+		desReg.setIndex(OutIndex);
+		desReg.argposition = (byte) 0;
+		GPNode N = cand.child = desReg;
+		N.children = new GPNode [1];
+		
+		for(int r = 0; r<=outputRegister.length; r++) {
+			GPNode n = Add_Mul_Coef_R(W, r);
+			
+			N.children[0] = n;
+			
+			N = n;
+		}
+		
+		return cand;
+	}
+	
+	private GPNode Add_Mul_Coef_R(double [] W, int index) {
+		//index: the index of outputRegister[]
+		
+		if(index < W.length-1) {
+			ConstantGPNode A = new ConstantGPNode();
+			A.setValue(W[index+1]);
+			A.argposition = (byte) 0;
+			
+			ReadRegisterGPNode srcReg = new ReadRegisterGPNode();
+			srcReg.setIndex(outputRegister[index]);
+			srcReg.argposition = (byte) 0;
+			
+			GPNode n = new Add();
+			
+			n.children = new GPNode[2];
+			n.children[1] = new Mul();
+			
+			n.children[1].children = new GPNode[2];
+			n.children[1].children[0] = A;
+			n.children[1].children[1] = srcReg;
+			
+			return n;
+		}
+		else { //index == W.length - 1
+			ConstantGPNode A = new ConstantGPNode();
+			A.setValue(W[0]);
+			A.argposition = (byte) 0;
+			
+			return A;
+		}
 	}
 }

@@ -283,6 +283,11 @@ public abstract class TGPIndividual4Grammar  extends CpxGPIndividual {
 	}
 	
 	@Override
+	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list){
+		return null;
+	}
+	
+	@Override
 	public Object getWrapper() {
 		return null;
 	}

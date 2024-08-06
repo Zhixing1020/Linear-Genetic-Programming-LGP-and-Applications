@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import ec.EvolutionState;
 import ec.Problem;
@@ -93,6 +94,8 @@ public abstract class CpxGPIndividual extends GPIndividual{
 	
 	//the wrapper applies polynomial regression to fine tune the final output of GP programs, returns the tuned outputs. 
 	public abstract double [] wrapper(EvolutionState state, int thread, GPData input, ADFStack stack, GPIndividual individual, double [] predict, double [] target);
+	
+	public abstract ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list);
 	
 	public boolean IsWrap() {return towrap;}
 	
