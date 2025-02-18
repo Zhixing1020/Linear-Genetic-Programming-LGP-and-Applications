@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.util.Pair;
 
@@ -27,13 +28,16 @@ import ec.util.Output;
 import ec.util.Parameter;
 import yimei.jss.gp.function.Add;
 import yimei.jss.gp.function.Mul;
+import yimei.jss.gp.terminal.AttributeGPNode;
 import zhixing.cpxInd.individual.primitive.Branching;
 import zhixing.cpxInd.individual.primitive.ConstantGPNode;
+import zhixing.cpxInd.individual.primitive.Entity;
 import zhixing.cpxInd.individual.primitive.FlowOperator;
 import zhixing.cpxInd.individual.primitive.Iteration;
 import zhixing.cpxInd.individual.primitive.ReadRegisterGPNode;
 import zhixing.cpxInd.individual.primitive.WriteRegisterGPNode;
 import zhixing.cpxInd.util.LinearRegression;
+import zhixing.symbolicregression.individual.primitive.InputFeatureGPNode;
 
 public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInterface4Problem{
 
@@ -99,6 +103,9 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 		 //set wrapper or not
 		 towrap = state.parameters.getBoolean(base.push(P_TOWRAP), def.push(P_TOWRAP), false);
 		 wraplist = new ArrayList<>();
+		 
+//		 normalize_wrap = state.parameters.getBoolean(base.push(P_NORMWRAP), def.push(P_NORMWRAP), false);
+//		 normalize_f = state.parameters.getDoubleWithDefault(base.push(P_NORMWRAP_F), def.push(P_NORMWRAP_F), 1e-3);
 	    
 		 // the maximum/minimum number of trees
 	     MaxNumTrees = state.parameters.getInt(base.push(P_MAXNUMTREES),def.push(P_MAXNUMTREES),1);  // at least 1 tree for GP!
@@ -147,15 +154,15 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	             base.push(P_NUMOUTPUTREGISTERS),def.push(P_NUMOUTPUTREGISTERS));
 	     outputRegister = new int[numOutputRegs];
 	     for(int r = 0; r<numOutputRegs; r++){
-	    	 Parameter b = base.push(P_OUTPUTREGISTER).push("" + r);
-	            
-            int reg = state.parameters.getIntWithDefault(b, null, 0);
-            if(reg < 0 ){
-            	System.err.println("ERROR:");
-                System.err.println("output register must be >= 0.");
-                System.exit(1);
-            }
-            getOutputRegister()[r] = reg;
+//	    	 Parameter b = base.push(P_OUTPUTREGISTER).push("" + r);
+//	            
+//            int reg = state.parameters.getIntWithDefault(b, null, 0);
+//            if(reg < 0 ){
+//            	System.err.println("ERROR:");
+//                System.err.println("output register must be >= 0.");
+//                System.exit(1);
+//            }
+            getOutputRegister()[r] = r;
 	     }
 	     
 	     // load the trees
@@ -1332,17 +1339,44 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 		return newpred;
 	}
 	
-	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list) {
+	@Override
+	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list, EvolutionState state, int thread) {
 		
-		double [][] predict = new double [predict_list.size()][predict_list.get(0).length]; //the predict of the current program
-		double [] target = new double [target_list.size()]; //since we linearly regress the output "column-by-column" (target-by-target) 
+		final int MAX_SAMPLE = 1000;
 		
-		//initialize (transform) the predict
-		for(int i = 0; i<predict.length; i++) {
-			for(int j = 0; j<predict[0].length; j++) {
-				predict[i][j] = predict_list.get(i)[j];
+		double [][] predict = null;
+		double [] target = null;
+		
+		int [] indices = null;
+		
+		if(predict_list.size() > MAX_SAMPLE) {
+			predict = new double [MAX_SAMPLE][predict_list.get(0).length]; //the predict of the current program
+			target = new double [MAX_SAMPLE]; //since we linearly regress the output "column-by-column" (target-by-target)
+			indices = new int [MAX_SAMPLE]; //the indices of selected samples 
+			
+			for(int s = 0; s<MAX_SAMPLE; s++) {
+				int ind = state.random[thread].nextInt(predict_list.size());
+				indices[s] = ind;
+				for(int j = 0; j<predict[0].length; j++) {
+					predict[s][j] = predict_list.get(ind)[j];
+				}
 			}
 		}
+		else {
+			predict = new double [predict_list.size()][predict_list.get(0).length]; //the predict of the current program
+			target = new double [target_list.size()]; //since we linearly regress the output "column-by-column" (target-by-target)
+			indices = new int [predict_list.size()];
+			
+			//initialize (transform) the predict
+			for(int i = 0; i<predict.length; i++) {
+				indices[i] = i;
+				for(int j = 0; j<predict[0].length; j++) {
+					predict[i][j] = predict_list.get(i)[j];
+				}
+			}
+		} 
+		
+		
 		
 		//predict: 0-axis: instances  1-axis: output registers
 		//target: the target values of all the instances
@@ -1353,30 +1387,41 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
         for(int tar = 0; tar<target_list.get(0).length; tar++) {
         	
         	//prepare the target
-        	for(int i = 0; i<target_list.size(); i++) {
-        		target[i] = target_list.get(i)[tar];
+        	for(int i = 0; i<predict.length; i++) {
+        		target[i] = target_list.get(indices[i])[tar];
         	}
         	
         	lr.fit(predict, target);
             
             double [] W = lr.getWeights();
             
+//            weight_norm = 0;
+//            if(normalize_wrap) {
+//            	for(double w : W) {
+//                	weight_norm += w*w;
+//                }
+//                weight_norm = Math.sqrt(weight_norm/W.length) * normalize_f;
+//            }
+            
+            		
             GPTreeStruct instr = constructInstr(outputRegister[tar], W);
             wraplist.add(instr);
             
             //update predict
         	for(int i = 0; i<target_list.size(); i++) {
         		double tmp =  W[0];
-        		for(int j = 0; j<predict[0].length; j++) {
-        			tmp += W[j+1] * predict[i][j];
+        		for(int j = 0; j<predict_list.get(0).length; j++) {
+        			tmp += W[j+1] * predict_list.get(i)[j];
         		}
-        		predict[i][tar] = tmp;
-        		if(predict[i][tar] > 1e6) {
-        			predict[i][tar] = 1e6;
+        		
+        		if(tmp > 1e6) {
+        			tmp = 1e6;
         		}
-        		if(predict[i][tar] < -1e6) {
-        			predict[i][tar] = -1e6;
+        		if(tmp < -1e6) {
+        			tmp = -1e6;
         		}
+        		
+        		predict_list.get(i)[tar] = tmp;
         	}
         }
         
@@ -1384,7 +1429,7 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
         for(int i = 0;i<target_list.size(); i++	) {
         	Double [] tmp = new Double [target_list.get(0).length];
         	for(int tar = 0; tar< target_list.get(0).length; tar++) {
-        		tmp [tar] = predict[i][tar];
+        		tmp [tar] = predict_list.get(i)[tar];
         	}
         	newpred.add(tmp);
         }
@@ -1448,4 +1493,99 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 			return A;
 		}
 	}
+	
+	public String makeGraphvizInstr(int instr_index, Set<String> Inputs, String usedTerminals[], Set<Integer> notUsed, AtomicInteger cntindex)
+    {
+		//return the Graphviz string of an instruction
+		//instr_index: index of an instruction,  Inputs: input nodes, 
+		//userTerminals: the initial values of registers, cntindex: the index of graph nodes
+		
+		String connection = "";
+		
+		GPTree tree = getTreeStruct(instr_index);
+		
+		if(notUsed.contains((((WriteRegisterGPNode) tree.child)).getIndex())){
+			connection += "R" +  (((WriteRegisterGPNode) tree.child)).getIndex() +"[shape=box];\n";
+			connection += "R" +  (((WriteRegisterGPNode) tree.child)).getIndex() + "->" + instr_index + ";\n";
+			notUsed.remove((Integer)(((WriteRegisterGPNode) tree.child)).getIndex());
+		}
+		
+		for(int c = 0;c<tree.child.children[0].children.length; c++) {
+			connection += makeGraphvizSubInstr(tree.child.children[0].children[c], instr_index, c,
+					Inputs, usedTerminals, ""+instr_index, cntindex);
+		}
+	   
+		return connection;
+    }
+	
+	protected String makeGraphvizSubInstr(GPNode node, int instr_index, int child_index, Set<String> Inputs, 
+			String usedTerminals[], String parentLabel, AtomicInteger cntindex) {
+		
+		//if it is a register,  backward visit to connect parent with the instruction index
+		//if it is an input, specify the node and connect with parent.
+		//if it is a function,  specify, connect with parent, and recursively call this makeGraphvizSubInstr(...)
+		
+		String res = "";
+		if(node instanceof InputFeatureGPNode || node instanceof AttributeGPNode){
+			//check whether it has been here
+			if(!Inputs.contains(node.toString())){
+				Inputs.add(node.toString());
+				res += node.toString()+"[shape=box];\n";
+			}
+			res += "" + parentLabel+ "->"+node.toString()+"[label=\"" + child_index +"\"];\n";
+			return res;
+		}
+		
+		if(node instanceof Entity && node.expectedChildren() == 0) {
+			if(!Inputs.contains(((Entity)node).toGraphvizString())){
+				Inputs.add(((Entity)node).toGraphvizString());
+				res += "\"" + ((Entity)node).toGraphvizString()+"\"[shape=box];\n";
+			}
+			res += "" + parentLabel + "->"+"\"" + ((Entity)node).toGraphvizString()+"\""+"[label=\"" + child_index +"\"];\n";
+			return res;
+		}
+		
+		//if it is a register
+		if(node instanceof ReadRegisterGPNode){
+			
+			int j = instr_index-1;
+			for(;j>=0;j--){
+				
+				GPTreeStruct visit = getTreelist().get(j);
+				
+				if(!visit.status) continue;
+				
+				if((((WriteRegisterGPNode) visit.child)).getIndex() == ((ReadRegisterGPNode)node).getIndex()){
+					res += "" + parentLabel + "->" + j + "[label=\"" + child_index +"\"];\n";
+					break;
+				}
+				
+			}
+			//if there is still source registers, connect the instruction with initial values
+			if(j<0) {
+				int t = ((ReadRegisterGPNode)node).getIndex();
+				if(!Inputs.contains(usedTerminals[t])) {
+					Inputs.add(usedTerminals[t]);
+					res += usedTerminals[t]+"[shape=box];\n";
+				}
+				
+				res += "" + parentLabel + "->" + usedTerminals[t] + "[label=\"" + child_index +"\"];\n";
+			}
+			return res;
+		}
+		
+		//function
+		String label = cntindex.toString();
+		cntindex.set(cntindex.intValue() + 1);
+		res += "" + label + "[label=\"" + node.toGraphvizString() + "\"];\n";
+		res += parentLabel + "->" + label + "[label=\"" + child_index +"\"];\n";
+		 for(int x = 0; x < node.children.length; x++)
+	     {	        
+	        res += makeGraphvizSubInstr(node.children[x], instr_index, x, 
+	        		Inputs, usedTerminals, label, cntindex);
+	     }
+	    return res;
+	}
+	
+	
 }

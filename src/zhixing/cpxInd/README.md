@@ -4,6 +4,8 @@
 
   - `Grammar` [grammar-guided linear genetic programming](./algorithm/Grammar).
   - `Graphbased` [graph-based search mechanisms of linear genetic programming](./algorithm/Graphbased)
+  - `LandscapeOptimization` [fitness landscape optimization for stochastic symbolic search](./algorithm/LandscapeOptimization)
+  - `Multiform` [Multi-Representation GP: a case study of tree-based and linear representation](./algorithm/Multiform)
   - `multitask` [multitask linear genetic programming](./algorithm/multitask)
   - `semantic` [semantic linear genetic programming](./algorithm/semantic)
 
@@ -24,3 +26,6 @@
 * `statistics` defines the logging functions of linear genetic programming.
 
 * `species` defines the basic functions of linear genetic programming species.
+
+* `util` defines some useful classes. These classes are commonly used in different applications.
+

@@ -25,8 +25,10 @@ import zhixing.cpxInd.individual.GPTreeStruct;
 import zhixing.cpxInd.individual.LGPDefaults;
 import zhixing.cpxInd.individual.LGPIndividual;
 import zhixing.cpxInd.individual.primitive.ConstantGPNode;
+import zhixing.cpxInd.individual.primitive.Entity;
 import zhixing.cpxInd.individual.primitive.FlowOperator;
 import zhixing.cpxInd.individual.primitive.WriteRegisterGPNode;
+import zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.Function_EntityNode;
 
 public class LGPMicroMutationPipeline extends MutationPipeline {
 public static final String P_STEP = "step"; //the number of free mutation step size 
@@ -245,13 +247,17 @@ public static final String P_STEP = "step"; //the number of free mutation step s
                 if(cnt > 0) {
                 	switch (componenttype) {
                 	case functions:
-						p2 = (GPNode)((GPNode) set.nonterminals_v.get(state.random[thread].nextInt(set.nonterminals_v.size()))).lightClone();
+                		
+                		p2 = (GPNode)((GPNode) set.nonterminals_v.get(state.random[thread].nextInt(set.nonterminals_v.size()))).lightClone();
 						p2.resetNode(state, thread);
+
 						break;
 					case cons:
 						if(state.random[thread].nextDouble()<((LGPMutationGrowBuilder)builder).probCons) {
+							
 							p2 = (GPNode)((GPNode) set.constants_v.get(state.random[thread].nextInt(set.constants_v.size()))).lightClone();
 							p2.resetNode(state, thread);
+							
 						}
 						else {
 							p2 = (GPNode)((GPNode) set.nonconstants_v.get(state.random[thread].nextInt(set.nonconstants_v.size()))).lightClone();

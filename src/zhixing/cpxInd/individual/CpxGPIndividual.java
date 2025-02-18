@@ -25,8 +25,13 @@ public abstract class CpxGPIndividual extends GPIndividual{
     public static final String P_NUMTREES = "numtrees";
     public static final String P_TREE = "tree";
     public static final String P_TOWRAP = "to-wrap";
+//    public static final String P_NORMWRAP = "norm-wrap";
+    public static final String P_NORMWRAP_F = "norm-wrap-factor";
     
     protected boolean towrap = false;
+//    protected boolean normalize_wrap = false;
+//    protected double normalize_f = 1e-3;
+//    protected double weight_norm = 0;
     
     public abstract void rebuildIndividual(EvolutionState state, int thread);
     
@@ -95,9 +100,13 @@ public abstract class CpxGPIndividual extends GPIndividual{
 	//the wrapper applies polynomial regression to fine tune the final output of GP programs, returns the tuned outputs. 
 	public abstract double [] wrapper(EvolutionState state, int thread, GPData input, ADFStack stack, GPIndividual individual, double [] predict, double [] target);
 	
-	public abstract ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list);
+	public abstract ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list, EvolutionState state, int thread);
 	
 	public boolean IsWrap() {return towrap;}
 	
 	public abstract Object getWrapper();
+	
+//	public double getWeightNorm() {
+//		return weight_norm;
+//	}
 }
