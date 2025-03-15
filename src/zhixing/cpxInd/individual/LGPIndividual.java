@@ -714,6 +714,36 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 		return res;
 	}
 	
+	public double getAvgNumEffFun() {
+		updateStatus();
+		double res = 0;
+		int cnt_tree = 0;
+		for(GPTreeStruct tree : getTreelist()){
+			if (tree.status){
+				cnt_tree ++;
+				res += tree.child.numNodes(GPNode.NODESEARCH_NONTERMINALS);
+			}
+		}
+		
+		return res / cnt_tree;
+	}
+	
+	public double getAvgNumFun() {
+//		updateStatus();
+		double res = 0;
+		int cnt_tree = 0;
+		for(GPTreeStruct tree : getTreelist()){
+			cnt_tree ++;
+			res += tree.child.numNodes(GPNode.NODESEARCH_NONTERMINALS);
+		}
+		
+		return res / cnt_tree;
+	}
+	
+	public double getProgramSize() {
+		return getEffTreesLength() * getAvgNumEffFun() * 2.0;
+	}
+	
 	public void updateStatus(int n, int []tar) {
 		//identify which instructions are extrons and vise versa
 		//start to update the status from position n
