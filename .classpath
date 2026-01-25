@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry excluding="yimei/jss/algorithm/feature/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src/yimei/jss/algorithm/feature"/>
+	<classpathentry kind="lib" path="libraries/commons-lang3-3.4-javadoc.jar"/>
+	<classpathentry kind="lib" path="libraries/commons-lang3-3.4.jar"/>
+	<classpathentry kind="lib" path="libraries/commons-math3-3.5-javadoc.jar"/>
+	<classpathentry kind="lib" path="libraries/commons-math3-3.5.jar"/>
+	<classpathentry kind="lib" path="libraries/EJML-core-0.27.jar"/>
+	<classpathentry kind="lib" path="libraries/EJML-dense64-0.27.jar"/>
+	<classpathentry kind="lib" path="libraries/EJML-simple-0.27.jar"/>
+	<classpathentry kind="lib" path="libraries/itext-1.2.jar"/>
+	<classpathentry kind="lib" path="libraries/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="libraries/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="libraries/jzlib-1.0.7.jar"/>
+	<classpathentry kind="lib" path="libraries/pshecj.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
