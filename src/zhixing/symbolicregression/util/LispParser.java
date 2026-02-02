@@ -24,12 +24,18 @@ import zhixing.symbolicregression.individual.primitive.Add;
 import zhixing.symbolicregression.individual.primitive.Cos;
 import zhixing.symbolicregression.individual.primitive.Div;
 import zhixing.symbolicregression.individual.primitive.Exp;
+import zhixing.symbolicregression.individual.primitive.IF;
 import zhixing.symbolicregression.individual.primitive.InputFeatureGPNode;
 import zhixing.symbolicregression.individual.primitive.Ln;
+import zhixing.symbolicregression.individual.primitive.Max;
+import zhixing.symbolicregression.individual.primitive.Min;
 import zhixing.symbolicregression.individual.primitive.Mul;
+import zhixing.symbolicregression.individual.primitive.Pow2;
+import zhixing.symbolicregression.individual.primitive.ReLu;
 import zhixing.symbolicregression.individual.primitive.Sin;
 import zhixing.symbolicregression.individual.primitive.Sqrt;
 import zhixing.symbolicregression.individual.primitive.Sub;
+import zhixing.symbolicregression.individual.primitive.Tanh;
 
 public class LispParser {
 	public static GPTree parseSymRegRule(String expression) {
@@ -171,39 +177,39 @@ public class LispParser {
                     node.children[0].argposition = 0;
                     node.children[1].argposition = 1;
                     break;
-//                case "max":
-//                    node = new Max();
-//                    node.children = new GPNode[2];
-//                    node.children[0] = parseNode(args.get(0));
-//                    node.children[1] = parseNode(args.get(1));
-//                    node.children[0].parent = node;
-//                    node.children[1].parent = node;
-//                    node.children[0].argposition = 0;
-//                    node.children[1].argposition = 1;
-//                    break;
-//                case "min":
-//                    node = new Min();
-//                    node.children = new GPNode[2];
-//                    node.children[0] = parseNode(args.get(0));
-//                    node.children[1] = parseNode(args.get(1));
-//                    node.children[0].parent = node;
-//                    node.children[1].parent = node;
-//                    node.children[0].argposition = 0;
-//                    node.children[1].argposition = 1;
-//                    break;
-//                case "if":
-//                    node = new If();
-//                    node.children = new GPNode[3];
-//                    node.children[0] = parseNode(args.get(0));
-//                    node.children[1] = parseNode(args.get(1));
-//                    node.children[2] = parseNode(args.get(2));
-//                    node.children[0].parent = node;
-//                    node.children[1].parent = node;
-//                    node.children[2].parent = node;
-//                    node.children[0].argposition = 0;
-//                    node.children[1].argposition = 1;
-//                    node.children[2].argposition = 2;
-//                    break;
+                case "max":
+                    node = new Max();
+                    node.children = new GPNode[2];
+                    node.children[0] = parseNode(args.get(0));
+                    node.children[1] = parseNode(args.get(1));
+                    node.children[0].parent = node;
+                    node.children[1].parent = node;
+                    node.children[0].argposition = 0;
+                    node.children[1].argposition = 1;
+                    break;
+                case "min":
+                    node = new Min();
+                    node.children = new GPNode[2];
+                    node.children[0] = parseNode(args.get(0));
+                    node.children[1] = parseNode(args.get(1));
+                    node.children[0].parent = node;
+                    node.children[1].parent = node;
+                    node.children[0].argposition = 0;
+                    node.children[1].argposition = 1;
+                    break;
+                case "if":
+                    node = new IF();
+                    node.children = new GPNode[3];
+                    node.children[0] = parseNode(args.get(0));
+                    node.children[1] = parseNode(args.get(1));
+                    node.children[2] = parseNode(args.get(2));
+                    node.children[0].parent = node;
+                    node.children[1].parent = node;
+                    node.children[2].parent = node;
+                    node.children[0].argposition = 0;
+                    node.children[1].argposition = 1;
+                    node.children[2].argposition = 2;
+                    break;
                 case "sin":
                 	node = new Sin();
                     node.children = new GPNode[1];
@@ -234,6 +240,27 @@ public class LispParser {
                     break;
                 case "exp":
                 	node = new Exp();
+                    node.children = new GPNode[1];
+                    node.children[0] = parseNode(args.get(0));
+                    node.children[0].parent = node;
+                    node.children[0].argposition = 0;
+                    break;
+                case "pow2":
+                	node = new Pow2();
+                    node.children = new GPNode[1];
+                    node.children[0] = parseNode(args.get(0));
+                    node.children[0].parent = node;
+                    node.children[0].argposition = 0;
+                    break;
+                case "tanh":
+                	node = new Tanh();
+                    node.children = new GPNode[1];
+                    node.children[0] = parseNode(args.get(0));
+                    node.children[0].parent = node;
+                    node.children[0].argposition = 0;
+                    break;
+                case "relu":
+                	node = new ReLu();
                     node.children = new GPNode[1];
                     node.children[0] = parseNode(args.get(0));
                     node.children[0].parent = node;

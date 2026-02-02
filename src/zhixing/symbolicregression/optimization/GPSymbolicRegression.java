@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.spiderland.Psh.booleanStack;
 import org.spiderland.Psh.intStack;
@@ -41,7 +43,7 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	protected String fitness;
 	protected boolean istraining;
 	
-	protected boolean normalized = true;
+	protected boolean normalized = false;
 	
 	public int datanum;
 	public int datadim;
@@ -59,7 +61,7 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	public double X[];  //a data instance
 	
 	public GPSymbolicRegression () {
-		setGPSymbolicRegression ("", "", "RMSE", true);
+//		setGPSymbolicRegression ("", "", "RMSE", true);
 	}
 	
 	public GPSymbolicRegression (String loca, String datan, String fitn, boolean istraining) {
@@ -90,6 +92,11 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 			filename = location + dataname + "_testing_data.txt";
 		}
 		
+		if(! Files.exists(Paths.get( filename))) {
+			System.err.print("the dataset " + filename + " does not exist\n");
+			System.exit(1);
+		}
+		
 		try {
             BufferedReader in = new BufferedReader(new FileReader(filename));
             String str = in.readLine();
@@ -117,8 +124,8 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 		
 		fitness = fitn;
 		
-		if(!(fitness.equals("RMSE")||fitness.equals("MSE")||fitness.equals("R2")||fitness.equals("RSE"))) {
-			System.err.print(fitness + " must be one of the following objectives: RMSE, MSE, RSE, and R2");
+		if(!(fitness.equals("RMSE")||fitness.equals("MSE")||fitness.equals("R2")||fitness.equals("RSE")||fitness.equals("WRSE"))) {
+			System.err.print(fitness + " must be one of the following objectives: RMSE, MSE, RSE, WRSE, and R2");
 			System.exit(1);
 		}
 		
@@ -185,7 +192,7 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 		
 		fitness = state.parameters.getString(base.push(FITNESS_P),def.push(FITNESS_P));
 		
-		normalized = state.parameters.getBoolean(base.push(NORMALIZE_P), def.push(NORMALIZE_P), true);
+		normalized = state.parameters.getBoolean(base.push(NORMALIZE_P), def.push(NORMALIZE_P), false);
 		
 		this.setGPSymbolicRegression(location, dataname, fitness, true);
 		
@@ -314,6 +321,9 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	         else if(fitness.equals("RSE")) {
 	        	 result = getRSE(real, predict);
 	         }
+	         else if(fitness.equals("WRSE")) {
+	        	 result = getWRSE(real, predict, 1);
+	         }
 	         else {
 	        	 System.err.print("unknown fitness objective "+fitness);
 	        	 System.exit(1);
@@ -403,6 +413,9 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 	         else if(fitness.equals("RSE")) {
 	        	 result = getRSE(real, predict);
 	         }
+	         else if(fitness.equals("WRSE")) {
+	        	 result = getWRSE(real, predict, 1);
+	         }
 	         else {
 	        	 System.err.print("unknown fitness objective "+fitness);
 	        	 System.exit(1);
@@ -423,7 +436,6 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
 			f.setObjectives(null, fitnesses);
 //	        f.hits = hits;
 	        ind.evaluated = true;
-	        
         }
 	}
 	
@@ -619,6 +631,40 @@ public class GPSymbolicRegression extends GPProblem implements SimpleProblemForm
          }
 		
 		double res = mse / var;
+		
+		return res;
+	}
+	
+	protected double getWRSE(double[] real, double[] predict, double k) {
+		//get variance of real
+		double avg = 0;
+		for(int y = 0; y<datanum; y++) {
+			avg += real[y];
+		}
+		avg /= datanum;
+			
+		double var = 0;
+		double normvar = 0;
+		double tmp;
+		for(int y = 0; y<datanum; y++) {
+			tmp = (real[y] - avg)*(real[y] - avg);
+			var += tmp;
+			normvar += Math.pow(tmp, k);
+		}
+//		var /= datanum;
+		
+		
+		double wmse = 0;
+		
+		for (int y=0;y<datanum;y++) {
+			double tmp1 = (real[y] - predict[y]);
+			double tmp2 = (real[y] - avg);
+			tmp = tmp1*tmp1* Math.pow(tmp2*tmp2, k) ;
+//			tmp = Math.sqrt(tmp1*tmp1*Math.pow(tmp2*tmp2, k));
+			wmse += tmp;
+		}
+		
+		double res = Math.sqrt( wmse / (var*normvar) );
 		
 		return res;
 	}
