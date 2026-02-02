@@ -1,0 +1,691 @@
+#print-unaccessed-params = true
+#print-used-params = true
+
+#multiform GP
+
+# ==============================
+# Administrative parameters
+# ==============================
+evalthreads = 1
+breedthreads = 1
+jobs = 1
+seed.0 = 4
+checkpoint = false
+checkpoint-modulo = 1
+checkpoint-prefix = ec
+
+# ==============================
+# Basic evolution parameters
+# ==============================
+state = zhixing.symbolicregression.algorithm.semantic.SLGPEvolutionState4SR
+finish = ec.simple.SimpleFinisher
+exch = ec.simple.SimpleExchanger
+breed =	ec.simple.SimpleBreeder
+eval = ec.simple.SimpleEvaluator
+stat = ec.simple.SimpleStatistics
+stat.file =$out.stat
+stat.num-children = 1
+stat.child.0 = zhixing.symbolicregression.algorithm.multiform.statistics.MultiFormStatistics4SR
+stat.child.0.file = $outtabular.stat
+
+update_interval=20
+
+generations = 200
+#nodeevaluations = 1000000
+quit-on-run-complete = true
+
+pop = ec.Population
+pop.subpops = 3
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.size =	30
+pop.subpop.1 = ec.Subpopulation
+pop.subpop.1.size =	30
+pop.subpop.2 = zhixing.cpxInd.algorithm.semantic.SubpopulationSLGP
+pop.subpop.2.size =	30
+pop.subpop.2.semantic_library = zhixing.symbolicregression.algorithm.semantic.library.SemanticLibrary4SR
+
+breed.elite.0 = 5
+breed.elite.1 = 5
+breed.elite.2 = 5
+
+semantic_library.maxNumInstr = 2000
+semantic_library.numreference=5
+semantic_library.numregisters=1
+semantic_library.maxnuminputs=4000
+semantic_library.maxcombine=1
+semantic_library.decayfactor=0.8
+semantic_library.numtries=500
+semantic_library.lowbound=-2
+semantic_library.upbound=2
+semantic_library.individual_base=pop.subpop.2.species.ind
+semantic_library.numupdate=1000
+semantic_library.fitness=zhixing.cpxInd.algorithm.semantic.library.fitness.Frequency
+semantic_library.tree = zhixing.cpxInd.individual.GPTreeStruct
+semantic_library.eliminate.source = zhixing.cpxInd.algorithm.semantic.library.select.SLTournamentSelection
+semantic_library.distribute=100
+semantic_library.pthresold=0.95
+
+
+pop.subpop.2.semantic_library.pipe = zhixing.cpxInd.algorithm.semantic.library.produce.SLMultiBreedingPipeline
+pop.subpop.2.semantic_library.pipe.num-sources = 3
+pop.subpop.2.semantic_library.pipe.source.0 = zhixing.cpxInd.algorithm.semantic.library.produce.SLMutation
+pop.subpop.2.semantic_library.pipe.source.0.prob = 0.3
+pop.subpop.2.semantic_library.pipe.source.0.build.0.growp = 0.5
+pop.subpop.2.semantic_library.pipe.source.0.build.0.min-depth = 3
+pop.subpop.2.semantic_library.pipe.source.0.build.0.max-depth = 5
+pop.subpop.2.semantic_library.pipe.source.0.build.0.prob_constant = 0.5
+pop.subpop.2.semantic_library.pipe.source.1 = zhixing.cpxInd.algorithm.semantic.library.produce.SLMicroMutation
+pop.subpop.2.semantic_library.pipe.source.1.prob = 0.3
+pop.subpop.2.semantic_library.pipe.source.2 = zhixing.cpxInd.algorithm.semantic.library.produce.SLCrossover
+pop.subpop.2.semantic_library.pipe.source.2.prob = 0.3
+
+pop.subpop.2.semantic_library.tree.tc = tc2
+
+pop.subpop.2.semantic_library.eliminate.source.pick-small=true
+pop.subpop.2.semantic_library.eliminate.source.size=20
+
+slmutation.source.0 = zhixing.cpxInd.algorithm.semantic.library.select.SLTournamentSelection
+slmutation.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+slmutation.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+slmutation.maxdepth = 5
+slmutation.mindepth = 3
+slmutation.tries = 50
+
+slmicromutation.source.0 = zhixing.cpxInd.algorithm.semantic.library.select.SLTournamentSelection
+slmicromutation.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+
+slxover.source.0 = zhixing.cpxInd.algorithm.semantic.library.select.SLTournamentSelection
+slxover.source.1 = same
+slxover.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+slxover.ns.1 = same
+slxover.ns.0.nonterminals = 0.5
+slxover.ns.0.root = 0.0
+slxover.ns.0.constants = 0.25
+slxover.ns.0.read_registers = 0.25
+#the same as the maximum depth of instructions
+slxover.maxdepth = 5
+slxover.mindepth = 3
+slxover.tries = 50
+
+SLTournament.pick-small=false
+SLTournament.size = 20
+
+
+# ==============================
+# GP general parameters
+# ==============================
+
+# LGP population parameters
+pop.subpop.0.species = zhixing.cpxInd.species.CpxGPSpecies
+pop.subpop.0.species.ind = zhixing.symbolicregression.algorithm.multiform.individual.LGPIndividual4SR_MForm
+#100
+pop.subpop.0.species.ind.maxnumtrees = 100
+pop.subpop.0.species.ind.minnumtrees = 2
+pop.subpop.0.species.ind.init_maxnumtrees = 20
+pop.subpop.0.species.ind.init_minnumtrees = 5
+#also remember to update the number of register in the function set
+pop.subpop.0.species.ind.numregisters = 8
+pop.subpop.0.species.ind.rate_flowoperator = 0.2
+pop.subpop.0.species.ind.max_itertimes = 100
+pop.subpop.0.species.ind.effective_initial = true
+pop.subpop.0.species.ind.tree.0 = zhixing.cpxInd.individual.GPTreeStruct
+pop.subpop.0.species.ind.tree.0.tc = tc0
+pop.subpop.0.species.ind.num-output-register = 1
+pop.subpop.0.species.ind.output-register.0 = 0
+
+
+#pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
+pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.0.species.fitness.num-objectives = 1
+pop.subpop.0.species.fitness.maximize = false
+pop.subpop.0.duplicate-retries = 100
+
+# GP initializer
+init = ec.gp.GPInitializer
+
+# GP breeding pipeline
+pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.generate-max = false
+pop.subpop.0.species.pipe.num-sources = 5
+pop.subpop.0.species.pipe.source.0 = zhixing.cpxInd.individual.reproduce.LGPMicroMutationPipeline
+#pop.subpop.0.species.pipe.source.0 = zhixing.symbolicregression.algorithm.graphbased.individual.reproduce.FrequencyMicroMutation4SR
+pop.subpop.0.species.pipe.source.0.prob = 0.3
+pop.subpop.0.species.pipe.source.0.source.0 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.0.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.0.species.pipe.source.0.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+pop.subpop.0.species.pipe.source.0.build.0.min-depth = 3
+#the same as the maximum depth of instructions
+pop.subpop.0.species.pipe.source.0.build.0.max-depth = 3
+pop.subpop.0.species.pipe.source.0.build.0.growp = 0.0
+pop.subpop.0.species.pipe.source.0.build.0.prob_constant = 0.5
+#the same as the maximum depth of instructions
+pop.subpop.0.species.pipe.source.0.maxdepth = 3
+pop.subpop.0.species.pipe.source.0.tries = 50
+
+pop.subpop.0.species.pipe.source.1 = zhixing.cpxInd.individual.reproduce.LGPMacroMutationPipeline
+#pop.subpop.0.species.pipe.source.1 = zhixing.symbolicregression.algorithm.graphbased.individual.reproduce.FrequencyMacroMutation4SR
+pop.subpop.0.species.pipe.source.1.prob = 0.3
+pop.subpop.0.species.pipe.source.1.micro_base = pop.subpop.0.species.pipe.source.0
+#pop.subpop.0.species.pipe.source.1.micro_base = null
+pop.subpop.0.species.pipe.source.1.source.0 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.1.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.0.species.pipe.source.1.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+pop.subpop.0.species.pipe.source.1.build.0.min-depth = 3
+#the same as the maximum depth of instructions
+pop.subpop.0.species.pipe.source.1.build.0.max-depth = 3
+pop.subpop.0.species.pipe.source.1.build.0.growp = 0.0
+pop.subpop.0.species.pipe.source.1.build.0.prob_constant = 0.5
+#the same as the maximum depth of instructions
+pop.subpop.0.species.pipe.source.1.maxdepth = 3
+pop.subpop.0.species.pipe.source.1.tries = 50
+
+pop.subpop.0.species.pipe.source.2 = zhixing.cpxInd.individual.reproduce.LGP2PointCrossoverPipeline
+pop.subpop.0.species.pipe.source.2.micro_base = pop.subpop.0.species.pipe.source.0
+#pop.subpop.0.species.pipe.source.2.micro_base = null
+pop.subpop.0.species.pipe.source.2.prob = 0.0
+pop.subpop.0.species.pipe.source.2.source.0 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.2.source.1 = same
+pop.subpop.0.species.pipe.source.2.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.0.species.pipe.source.2.ns.1 = same
+#the same as the maximum depth of instructions
+pop.subpop.0.species.pipe.source.2.maxdepth = 3
+pop.subpop.0.species.pipe.source.2.tries = 50
+
+pop.subpop.0.species.pipe.source.3 = ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.3.prob = 0.1
+
+pop.subpop.0.species.pipe.source.4 = zhixing.symbolicregression.algorithm.multiform.individual.reproduce.ATCrossover4LGPSR
+pop.subpop.0.species.pipe.source.4.micro_base = pop.subpop.0.species.pipe.source.0
+#pop.subpop.0.species.pipe.source.4.micro_base = null
+pop.subpop.0.species.pipe.source.4.prob = 0.3
+pop.subpop.0.species.pipe.source.4.source.0 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.4.source.1 = zhixing.cpxInd.algorithm.Multiform.individual.reproduce.Tournament_merge4Multiform
+#pop.subpop.0.species.pipe.source.4.source.1.size = 10
+pop.subpop.0.species.pipe.source.4.macro_base = pop.subpop.0.species.pipe.source.1
+pop.subpop.0.species.pipe.source.4.macro_rate = 0.4
+pop.subpop.0.species.pipe.source.4.cross_base = pop.subpop.0.species.pipe.source.2
+pop.subpop.0.species.pipe.source.4.cross_rate = 0.4
+pop.subpop.0.species.pipe.source.4.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.0.species.pipe.source.4.ns.1 = ec.gp.koza.KozaNodeSelector
+pop.subpop.0.species.pipe.source.4.ns.1.terminals = 0.1
+pop.subpop.0.species.pipe.source.4.ns.1.nonterminals = 0.9
+pop.subpop.0.species.pipe.source.4.ns.1.root = 0.0
+pop.subpop.0.species.pipe.source.4.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+pop.subpop.0.species.pipe.source.4.build.0.min-depth = 3
+pop.subpop.0.species.pipe.source.4.build.0.max-depth = 3
+pop.subpop.0.species.pipe.source.4.build.0.growp = 0.0
+pop.subpop.0.species.pipe.source.4.build.0.prob_constant = 0.5
+#the same as the maximum depth of instructions
+pop.subpop.0.species.pipe.source.4.maxdepth = 3
+pop.subpop.0.species.pipe.source.4.tries = 50
+
+
+# TGP population parameters
+pop.subpop.1.species = zhixing.cpxInd.species.CpxGPSpecies
+pop.subpop.1.species.ind = zhixing.symbolicregression.algorithm.multiform.individual.TGPIndividual4SR_MForm
+pop.subpop.1.species.ind.numtrees = 1
+pop.subpop.1.species.ind.tree.0 = ec.gp.GPTree
+pop.subpop.1.species.ind.tree.0.tc = tc1
+
+#pop.subpop.1.species.fitness = ec.gp.koza.KozaFitness
+pop.subpop.1.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.1.species.fitness.num-objectives = 1
+pop.subpop.1.species.fitness.maximize = false
+pop.subpop.1.duplicate-retries = 100
+
+# GP initializer
+init = ec.gp.GPInitializer
+
+# GP breeding pipeline
+pop.subpop.1.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.1.species.pipe.generate-max = false
+pop.subpop.1.species.pipe.num-sources = 4
+
+pop.subpop.1.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
+pop.subpop.1.species.pipe.source.0.prob = 0.3
+pop.subpop.1.species.pipe.source.0.source.0 = ec.select.TournamentSelection
+pop.subpop.1.species.pipe.source.0.source.1 = same
+#pop.subpop.1.species.pipe.source.0.source.0.size = 4
+pop.subpop.1.species.pipe.source.0.ns.0 = ec.gp.koza.KozaNodeSelector
+pop.subpop.1.species.pipe.source.0.ns.1 = same
+pop.subpop.1.species.pipe.source.0.ns.0.terminals = 0.1
+pop.subpop.1.species.pipe.source.0.ns.0.nonterminals = 0.9
+pop.subpop.1.species.pipe.source.0.ns.0.root = 0.0
+pop.subpop.1.species.pipe.source.0.maxdepth = 10
+pop.subpop.1.species.pipe.source.0.tries = 1
+
+
+pop.subpop.1.species.pipe.source.1 = ec.gp.koza.MutationPipeline
+pop.subpop.1.species.pipe.source.1.prob = 0.3
+pop.subpop.1.species.pipe.source.1.source.0 = ec.select.TournamentSelection
+#pop.subpop.1.species.pipe.source.1.source.0.size = 4
+pop.subpop.1.species.pipe.source.1.ns.0 = ec.gp.koza.KozaNodeSelector
+pop.subpop.1.species.pipe.source.1.ns.0.terminals = 0.1
+pop.subpop.1.species.pipe.source.1.ns.0.nonterminals = 0.9
+pop.subpop.1.species.pipe.source.1.ns.0.root = 0.0
+pop.subpop.1.species.pipe.source.1.build.0 = ec.gp.koza.GrowBuilder
+pop.subpop.1.species.pipe.source.1.build.0.min-depth = 4
+pop.subpop.1.species.pipe.source.1.build.0.max-depth = 4
+pop.subpop.1.species.pipe.source.1.maxdepth = 10
+pop.subpop.1.species.pipe.source.1.tries = 1
+
+pop.subpop.1.species.pipe.source.2 = ec.breed.ReproductionPipeline
+pop.subpop.1.species.pipe.source.2.prob = 0.1
+#pop.subpop.1.species.pipe.source.2.source.0.size = 4
+
+pop.subpop.1.species.pipe.source.3 = zhixing.symbolicregression.algorithm.multiform.individual.reproduce.ATCrossover4TGPSR
+pop.subpop.1.species.pipe.source.3.prob = 0.3
+pop.subpop.1.species.pipe.source.3.source.0 = ec.select.TournamentSelection
+#pop.subpop.1.species.pipe.source.3.source.0.size = 4
+pop.subpop.1.species.pipe.source.3.source.1 = zhixing.cpxInd.algorithm.Multiform.individual.reproduce.Tournament_merge4Multiform
+#pop.subpop.1.species.pipe.source.3.source.1.size = 10
+pop.subpop.1.species.pipe.source.3.mut_base = pop.subpop.1.species.pipe.source.1
+pop.subpop.1.species.pipe.source.3.mut_rate = 0.2
+pop.subpop.1.species.pipe.source.3.cross_base = pop.subpop.1.species.pipe.source.0
+pop.subpop.1.species.pipe.source.3.cross_rate = 0.8
+pop.subpop.1.species.pipe.source.3.ns.0 = ec.gp.koza.KozaNodeSelector
+pop.subpop.1.species.pipe.source.3.ns.1 = same
+pop.subpop.1.species.pipe.source.3.ns.0.terminals = 0.1
+pop.subpop.1.species.pipe.source.3.ns.0.nonterminals = 0.9
+pop.subpop.1.species.pipe.source.3.ns.0.root = 0.0
+pop.subpop.1.species.pipe.source.3.maxdepth = 10
+pop.subpop.1.species.pipe.source.3.tries = 50
+pop.subpop.1.species.pipe.source.3.maxseglength = 60
+pop.subpop.1.species.pipe.source.3.maxlendiffseg = 10
+pop.subpop.1.species.pipe.source.3.build.0 = ec.gp.koza.HalfBuilder
+pop.subpop.1.species.pipe.source.3.build.0.min-depth = 2
+pop.subpop.1.species.pipe.source.3.build.0.max-depth = 10
+pop.subpop.1.species.pipe.source.3.build.0.growp = 0.5
+
+
+
+#the second LGP population
+pop.subpop.2.species = zhixing.cpxInd.species.CpxGPSpecies
+pop.subpop.2.species.ind = zhixing.symbolicregression.algorithm.multiform.individual.SLGPIndividual4SR_MForm
+#100
+pop.subpop.2.species.ind.maxnumtrees = 5
+pop.subpop.2.species.ind.minnumtrees = 5
+pop.subpop.2.species.ind.init_maxnumtrees = 5
+pop.subpop.2.species.ind.init_minnumtrees = 5
+#also remember to update the number of register in the function set
+pop.subpop.2.species.ind.numregisters = 1
+pop.subpop.2.species.ind.rate_flowoperator = 0.2
+pop.subpop.2.species.ind.max_itertimes = 100
+pop.subpop.2.species.ind.effective_initial = true
+pop.subpop.2.species.ind.tree.0 = zhixing.cpxInd.algorithm.semantic.individual.GPTreeStructSemantic
+pop.subpop.2.species.ind.tree.0.tc = tc2
+pop.subpop.2.species.ind.num-output-register = 1
+pop.subpop.2.species.ind.output-register.0 = 0
+
+
+#pop.subpop.2.species.fitness = ec.gp.koza.KozaFitness
+pop.subpop.2.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.2.species.fitness.num-objectives = 1
+pop.subpop.2.species.fitness.maximize = false
+pop.subpop.2.duplicate-retries = 100
+
+# GP initializer
+init = ec.gp.GPInitializer
+
+# GP breeding pipeline
+pop.subpop.2.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.2.species.pipe.generate-max = false
+pop.subpop.2.species.pipe.num-sources = 6
+pop.subpop.2.species.pipe.source.0 = zhixing.cpxInd.individual.reproduce.LGPMicroMutationPipeline
+#pop.subpop.2.species.pipe.source.0 = zhixing.symbolicregression.algorithm.graphbased.individual.reproduce.FrequencyMicroMutation4SR
+pop.subpop.2.species.pipe.source.0.prob = 0.1
+pop.subpop.2.species.pipe.source.0.source.0 = ec.select.TournamentSelection
+pop.subpop.2.species.pipe.source.0.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.2.species.pipe.source.0.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+pop.subpop.2.species.pipe.source.0.build.0.min-depth = 3
+#the same as the maximum depth of instructions
+pop.subpop.2.species.pipe.source.0.build.0.max-depth = 5
+pop.subpop.2.species.pipe.source.0.build.0.growp = 0.0
+pop.subpop.2.species.pipe.source.0.build.0.prob_constant = 0.5
+#the same as the maximum depth of instructions
+pop.subpop.2.species.pipe.source.0.maxdepth = 5
+pop.subpop.2.species.pipe.source.0.tries = 50
+
+pop.subpop.2.species.pipe.source.1 = zhixing.cpxInd.individual.reproduce.LGPMacroMutationPipeline
+#pop.subpop.2.species.pipe.source.1 = zhixing.symbolicregression.algorithm.graphbased.individual.reproduce.FrequencyMacroMutation4SR
+pop.subpop.2.species.pipe.source.1.prob = 0.0
+pop.subpop.2.species.pipe.source.1.micro_base = pop.subpop.2.species.pipe.source.0
+#pop.subpop.2.species.pipe.source.1.micro_base = null
+pop.subpop.2.species.pipe.source.1.source.0 = ec.select.TournamentSelection
+pop.subpop.2.species.pipe.source.1.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.2.species.pipe.source.1.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+pop.subpop.2.species.pipe.source.1.build.0.min-depth = 3
+#the same as the maximum depth of instructions
+pop.subpop.2.species.pipe.source.1.build.0.max-depth = 5
+pop.subpop.2.species.pipe.source.1.build.0.growp = 0.0
+pop.subpop.2.species.pipe.source.1.build.0.prob_constant = 0.5
+#the same as the maximum depth of instructions
+pop.subpop.2.species.pipe.source.1.maxdepth = 5
+pop.subpop.2.species.pipe.source.1.tries = 50
+
+pop.subpop.2.species.pipe.source.2 = zhixing.cpxInd.individual.reproduce.LGP2PointCrossoverPipeline
+pop.subpop.2.species.pipe.source.2.micro_base = pop.subpop.2.species.pipe.source.0
+#pop.subpop.2.species.pipe.source.2.micro_base = null
+pop.subpop.2.species.pipe.source.2.prob = 0.0
+pop.subpop.2.species.pipe.source.2.source.0 = ec.select.TournamentSelection
+pop.subpop.2.species.pipe.source.2.source.1 = same
+pop.subpop.2.species.pipe.source.2.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.2.species.pipe.source.2.ns.1 = same
+#the same as the maximum depth of instructions
+pop.subpop.2.species.pipe.source.2.maxdepth = 5
+pop.subpop.2.species.pipe.source.2.tries = 50
+pop.subpop.2.species.pipe.source.2.maxseglength = 3
+pop.subpop.2.species.pipe.source.2.maxlendiffseg = 2
+pop.subpop.2.species.pipe.source.2.maxdistancecrosspoint = 3
+pop.subpop.2.species.pipe.source.2.effective = false
+
+pop.subpop.2.species.pipe.source.3 = ec.breed.ReproductionPipeline
+pop.subpop.2.species.pipe.source.3.prob = 0.1
+
+pop.subpop.2.species.pipe.source.4 = zhixing.symbolicregression.algorithm.multiform.individual.reproduce.ATCrossover4SLGPSR
+pop.subpop.2.species.pipe.source.4.micro_base = pop.subpop.2.species.pipe.source.0
+#pop.subpop.2.species.pipe.source.4.micro_base = null
+pop.subpop.2.species.pipe.source.4.prob = 0.3
+pop.subpop.2.species.pipe.source.4.source.0 = ec.select.TournamentSelection
+pop.subpop.2.species.pipe.source.4.source.1 = zhixing.cpxInd.algorithm.Multiform.individual.reproduce.Tournament_merge4Multiform
+#pop.subpop.2.species.pipe.source.4.source.1.size = 10
+pop.subpop.2.species.pipe.source.4.macro_base = pop.subpop.2.species.pipe.source.1
+pop.subpop.2.species.pipe.source.4.macro_rate = 0.4
+pop.subpop.2.species.pipe.source.4.cross_base = pop.subpop.2.species.pipe.source.2
+pop.subpop.2.species.pipe.source.4.cross_rate = 0.4
+pop.subpop.2.species.pipe.source.4.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.2.species.pipe.source.4.ns.1 = ec.gp.koza.KozaNodeSelector
+pop.subpop.2.species.pipe.source.4.ns.1.terminals = 0.1
+pop.subpop.2.species.pipe.source.4.ns.1.nonterminals = 0.9
+pop.subpop.2.species.pipe.source.4.ns.1.root = 0.0
+pop.subpop.2.species.pipe.source.4.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+pop.subpop.2.species.pipe.source.4.build.0.min-depth = 3
+pop.subpop.2.species.pipe.source.4.build.0.max-depth = 5
+pop.subpop.2.species.pipe.source.4.build.0.growp = 0.0
+pop.subpop.2.species.pipe.source.4.build.0.prob_constant = 0.5
+#the same as the maximum depth of instructions
+pop.subpop.2.species.pipe.source.4.maxdepth = 5
+pop.subpop.2.species.pipe.source.4.tries = 50
+pop.subpop.2.species.pipe.source.4.maxseglength = 3
+pop.subpop.2.species.pipe.source.4.maxlendiffseg = 2
+pop.subpop.2.species.pipe.source.4.maxdistancecrosspoint = 3
+
+pop.subpop.2.species.pipe.source.5 = zhixing.cpxInd.algorithm.semantic.individual.reproduce.MutateAndDivide
+pop.subpop.2.species.pipe.source.5.source.0 = ec.select.TournamentSelection
+pop.subpop.2.species.pipe.source.5.prob = 0.5
+#pop.subpop.2.species.pipe.source.5.micro_base = pop.subpop.2.species.pipe.source.0
+
+pop.subpop.2.species.pipe.source.6 = zhixing.cpxInd.algorithm.semantic.individual.reproduce.InstrWiseCrossover
+pop.subpop.2.species.pipe.source.6.prob = 0.1
+pop.subpop.2.species.pipe.source.6.micro_base = pop.subpop.2.species.pipe.source.0
+pop.subpop.2.species.pipe.source.6.source.0 = ec.select.TournamentSelection
+pop.subpop.2.species.pipe.source.6.source.1 = same
+pop.subpop.2.species.pipe.source.6.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+pop.subpop.2.species.pipe.source.6.ns.1 = same
+pop.subpop.2.species.pipe.source.6.maxdepth = 6
+pop.subpop.2.species.pipe.source.6.mindepth = 3
+pop.subpop.2.species.pipe.source.6.tries = 50
+
+# Selection for reproduction
+breed.reproduce.source.0 = ec.select.TournamentSelection
+#breed.reproduce.re-evaluate = true
+
+
+#LGP 2-point crossover parameters
+lgp.2pcross.maxseglength = 60
+lgp.2pcross.maxlendiffseg = 10
+lgp.2pcross.maxdistancecrosspoint = 60
+lgp.2pcross.effective = false
+
+
+lgp.micromut.step = 1
+lgp.micromut.effective = true
+lgp.micromut.probfunc = 0.5
+lgp.micromut.probcons = 0.125
+lgp.micromut.probwritereg = 0.25
+lgp.micromut.probreadreg = 0.125
+lgp.micromut.conststep = 10
+
+#LGP macro mutation parameters
+#effmut
+lgp.macromut.type = effmut
+lgp.macromut.step = 1
+lgp.macromut.prob_insert = 0.67
+lgp.macromut.prob_delete = 0.33
+
+# Tournament selection, for reproduction, crossover and mutation
+select.tournament.size = 7
+
+
+# LGP node selector, for crossover and mutation
+lgp.ns.nonterminals = 0.25
+lgp.ns.root = 0.25
+lgp.ns.constants = 0.25
+lgp.ns.read_registers = 0.25
+
+# GP atomic (a) and set (s) type parameters
+gp.type.a.size = 1
+gp.type.a.0.name = nil
+gp.type.s.size = 0
+
+# GP tree constraints
+gp.tc.size = 3
+gp.tc.0 = ec.gp.GPTreeConstraints
+gp.tc.0.name = tc0
+gp.tc.0.fset = f0
+gp.tc.0.returns = nil
+gp.tc.0.init = ec.gp.koza.HalfBuilder
+gp.tc.0.init.min-depth = 3
+#the same as the maximum depth of instructions
+gp.tc.0.init.max-depth = 3
+gp.tc.0.init.growp = 0.0
+gp.tc.0.init.prob_constant = 0.5
+
+gp.tc.1 = ec.gp.GPTreeConstraints
+gp.tc.1.name = tc1
+gp.tc.1.fset = f1
+gp.tc.1.returns = nil
+gp.tc.1.init = ec.gp.koza.HalfBuilder
+gp.tc.1.init.min-depth = 2
+#the same as the maximum depth of instructions
+gp.tc.1.init.max-depth = 10
+gp.tc.1.init.growp = 0.5
+
+gp.tc.2 = ec.gp.GPTreeConstraints
+gp.tc.2.name = tc2
+gp.tc.2.fset = f2
+gp.tc.2.returns = nil
+gp.tc.2.init = ec.gp.koza.HalfBuilder
+gp.tc.2.init.min-depth = 3
+#the same as the maximum depth of instructions
+gp.tc.2.init.max-depth = 5
+gp.tc.2.init.growp = 0.0
+gp.tc.2.init.prob_constant = 0.5
+
+# GP node constraints (nc[k] means the node takes k children), no other constraint
+gp.nc.size = 7
+
+gp.nc.0 = ec.gp.GPNodeConstraints
+gp.nc.0.name = nc0
+gp.nc.0.returns = nil
+gp.nc.0.size = 0
+
+gp.nc.1 = ec.gp.GPNodeConstraints
+gp.nc.1.name = nc1
+gp.nc.1.returns = nil
+gp.nc.1.size = 1
+gp.nc.1.child.0 = nil
+
+gp.nc.2 = ec.gp.GPNodeConstraints
+gp.nc.2.name = nc2
+gp.nc.2.returns = nil
+gp.nc.2.size = 2
+gp.nc.2.child.0 = nil
+gp.nc.2.child.1 = nil
+
+gp.nc.3 = ec.gp.GPNodeConstraints
+gp.nc.3.name = nc3
+gp.nc.3.returns = nil
+gp.nc.3.size = 3
+gp.nc.3.child.0 = nil
+gp.nc.3.child.1 = nil
+gp.nc.3.child.2 = nil
+
+gp.nc.4 = ec.gp.GPNodeConstraints
+gp.nc.4.name = nc4
+gp.nc.4.returns = nil
+gp.nc.4.size = 4
+gp.nc.4.child.0 = nil
+gp.nc.4.child.1 = nil
+gp.nc.4.child.2 = nil
+gp.nc.4.child.3 = nil
+
+gp.nc.5 = ec.gp.GPNodeConstraints
+gp.nc.5.name = nc5
+gp.nc.5.returns = nil
+gp.nc.5.size = 5
+gp.nc.5.child.0 = nil
+gp.nc.5.child.1 = nil
+gp.nc.5.child.2 = nil
+gp.nc.5.child.3 = nil
+gp.nc.5.child.4 = nil
+
+gp.nc.6 = ec.gp.GPNodeConstraints
+gp.nc.6.name = nc6
+gp.nc.6.returns = nil
+gp.nc.6.size = 6
+gp.nc.6.child.0 = nil
+gp.nc.6.child.1 = nil
+gp.nc.6.child.2 = nil
+gp.nc.6.child.3 = nil
+gp.nc.6.child.4 = nil
+gp.nc.6.child.5 = nil
+
+# GP ADF parameters
+gp.problem.stack = ec.gp.ADFStack
+gp.adf-stack.context = ec.gp.ADFContext
+
+# ==============================
+# GP problem specific parameters
+# ==============================
+
+# GP function set parameters
+gp.fs.size = 3
+gp.fs.0.name = f0
+gp.fs.0.size = 12
+gp.fs.0.func.0 = zhixing.symbolicregression.individual.primitive.InputFeatureGPNode
+gp.fs.0.func.0.size = 1
+gp.fs.0.func.0.nc = nc0
+gp.fs.0.func.1 = zhixing.symbolicregression.individual.primitive.Add
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = zhixing.symbolicregression.individual.primitive.Sub
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = zhixing.symbolicregression.individual.primitive.Mul
+gp.fs.0.func.3.nc = nc2
+gp.fs.0.func.4 = zhixing.symbolicregression.individual.primitive.Div
+gp.fs.0.func.4.nc = nc2
+gp.fs.0.func.5 = zhixing.cpxInd.individual.primitive.WriteRegisterGPNode
+gp.fs.0.func.5.numregisters = 8
+gp.fs.0.func.5.nc = nc1
+gp.fs.0.func.6 = zhixing.cpxInd.individual.primitive.ReadRegisterGPNode
+gp.fs.0.func.6.numregisters = 8
+gp.fs.0.func.6.nc = nc0
+gp.fs.0.func.7 = zhixing.symbolicregression.individual.primitive.Sin
+gp.fs.0.func.7.nc = nc1
+gp.fs.0.func.8 = zhixing.symbolicregression.individual.primitive.Cos
+gp.fs.0.func.8.nc = nc1
+
+gp.fs.0.func.9 = zhixing.symbolicregression.individual.primitive.Exp
+gp.fs.0.func.9.nc = nc1
+gp.fs.0.func.10 = zhixing.symbolicregression.individual.primitive.Ln
+gp.fs.0.func.10.nc = nc1
+
+gp.fs.0.func.11 = zhixing.cpxInd.individual.primitive.ConstantGPNode
+gp.fs.0.func.11.lowbound = 0.0
+gp.fs.0.func.11.upbound = 1.0
+gp.fs.0.func.11.step = 0.1
+gp.fs.0.func.11.nc = nc0
+
+
+gp.fs.1.name = f1
+gp.fs.1.size = 10
+gp.fs.1.func.0 = zhixing.symbolicregression.individual.primitive.InputFeatureGPNode
+gp.fs.1.func.0.size = 1
+gp.fs.1.func.0.nc = nc0
+gp.fs.1.func.1 = zhixing.symbolicregression.individual.primitive.Add
+gp.fs.1.func.1.nc = nc2
+gp.fs.1.func.2 = zhixing.symbolicregression.individual.primitive.Sub
+gp.fs.1.func.2.nc = nc2
+gp.fs.1.func.3 = zhixing.symbolicregression.individual.primitive.Mul
+gp.fs.1.func.3.nc = nc2
+gp.fs.1.func.4 = zhixing.symbolicregression.individual.primitive.Div
+gp.fs.1.func.4.nc = nc2
+gp.fs.1.func.5 = zhixing.symbolicregression.individual.primitive.Sin
+gp.fs.1.func.5.nc = nc1
+gp.fs.1.func.6 = zhixing.symbolicregression.individual.primitive.Cos
+gp.fs.1.func.6.nc = nc1
+gp.fs.1.func.7 = zhixing.symbolicregression.individual.primitive.Exp
+gp.fs.1.func.7.nc = nc1
+gp.fs.1.func.8 = zhixing.symbolicregression.individual.primitive.Ln
+gp.fs.1.func.8.nc = nc1
+
+gp.fs.1.func.9 = zhixing.cpxInd.individual.primitive.ConstantGPNode
+gp.fs.1.func.9.lowbound = 0.0
+gp.fs.1.func.9.upbound = 1.0
+gp.fs.1.func.9.step = 0.1
+gp.fs.1.func.9.nc = nc0
+
+
+gp.fs.2.name = f2
+gp.fs.2.size = 12
+gp.fs.2.func.0 = zhixing.symbolicregression.individual.primitive.InputFeatureGPNode
+gp.fs.2.func.0.size = 1
+gp.fs.2.func.0.nc = nc0
+gp.fs.2.func.1 = zhixing.symbolicregression.individual.primitive.Add
+gp.fs.2.func.1.nc = nc2
+gp.fs.2.func.2 = zhixing.symbolicregression.individual.primitive.Sub
+gp.fs.2.func.2.nc = nc2
+gp.fs.2.func.3 = zhixing.symbolicregression.individual.primitive.Mul
+gp.fs.2.func.3.nc = nc2
+gp.fs.2.func.4 = zhixing.symbolicregression.individual.primitive.Div
+gp.fs.2.func.4.nc = nc2
+gp.fs.2.func.5 = zhixing.cpxInd.individual.primitive.WriteRegisterGPNode
+gp.fs.2.func.5.numregisters = 1
+gp.fs.2.func.5.nc = nc1
+gp.fs.2.func.6 = zhixing.cpxInd.individual.primitive.ReadRegisterGPNode
+gp.fs.2.func.6.numregisters = 1
+gp.fs.2.func.6.nc = nc0
+gp.fs.2.func.7 = zhixing.symbolicregression.individual.primitive.Sin
+gp.fs.2.func.7.nc = nc1
+gp.fs.2.func.8 = zhixing.symbolicregression.individual.primitive.Cos
+gp.fs.2.func.8.nc = nc1
+
+gp.fs.2.func.9 = zhixing.symbolicregression.individual.primitive.Exp
+gp.fs.2.func.9.nc = nc1
+gp.fs.2.func.10 = zhixing.symbolicregression.individual.primitive.Ln
+gp.fs.2.func.10.nc = nc1
+
+gp.fs.2.func.11 = zhixing.cpxInd.individual.primitive.ConstantGPNode
+gp.fs.2.func.11.lowbound = 0.0
+gp.fs.2.func.11.upbound = 1.0
+gp.fs.2.func.11.step = 0.1
+gp.fs.2.func.11.nc = nc0
+
+# ==============================
+# The output format
+# ==============================
+#gp.tree.print-style = c
+#pop.subpop.0.species.ind.tree.0.c-operators = false
+#gp.tree.print-style = dot
+
+# ==============================
+# The problem
+# ==============================
+
+eval.problem=zhixing.symbolicregression.optimization.GPSymbolicRegression
+eval.problem.data=yimei.jss.gp.data.DoubleData
+
+
+SRproblem.location = D:\\Application\\Eclipse\\workspace\\GPJSS-basicLGP\\GPJSS-basicLGP\\src\\zhixing\\symbolicregression\\dataset\\
+SRproblem.dataname = Keijzer11
+SRproblem.fitness = RSE
