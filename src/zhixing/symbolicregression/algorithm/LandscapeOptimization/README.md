@@ -6,13 +6,17 @@
 
 This class defines the evolutionary framework of LGP with fitness landscape optimization.
 
+**`FLReduction/parameters`**
+
+This package stores the parameters of applying fitness landscape compression for symbolic regression problems [2].
+
 **`simpleLGP`**
 
 * **`indexing`**
 
   - `SimpleLGPBuilder4SR.java` defines the necessary functions of building LGP instructions based on the primitives in SR problems.
 
-* **`toy`**
+**`toy`**
   - This package is for fulfilling the experiments in Sections IV and V in [1].
   - `SubpopulationFLO_ToySR.java` defines the class of the GP population in [1]. This GP population has a fitness landscape member. However, because the fitness landscape has to enumerate all possible solutions, it is recommended to use the fitness landscape only in small-scale problems.
   - `optimization/GPToySymbolicRegression.java` defines the class of the SR problems. We eliminate the normalization (i.e., treat the raw data as the normalized inputs) and remove the linear approximate of outputs (i.e., out_mean = 0. and out_std = 1.).
@@ -20,6 +24,7 @@ This class defines the evolutionary framework of LGP with fitness landscape opti
 
 [1] Z. Huang, Y. Mei, F. Zhang, M. Zhang, and W. Banzhaf, “Fitness Landscape Optimization Makes Stochastic Symbolic Search By Genetic Programming Easier,” IEEE Trans. Evol. Computat., pp. 1–1, 2025, doi: 10.1109/TEVC.2024.3525006.
 
+[2] Z. Huang et al. "Fitness Landscape Compression for Genetic Programming-based Symbolic Search".
 
 ### Running Example ###
 
