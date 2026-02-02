@@ -14,12 +14,12 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 
 public class ConstantGPNode extends GPNode{
-	private Double value;
-	private static Vector<Double> range;
+	protected Double value;
+	protected static Vector<Double> range;
 	
-	private double lb = 0;
-	private double ub = 1;
-	private double step = 0.1;
+	protected double lb = 0;
+	protected double ub = 1;
+	protected double step = 0.1;
 	
 	//ConstantGPNode and InputFeatureGPNode can also develop a setup function like Write(Read)RegisterGPNode, and be used in GPFunctionSet
 	

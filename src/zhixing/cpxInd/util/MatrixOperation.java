@@ -48,6 +48,21 @@ public class MatrixOperation {
 
         return result;
     }
+	
+	public static double multiplyVector(double [] a, double [] b) {
+		if(a.length != b.length) {
+			System.err.print("inconsistent dimensions in multiplyVector\n");
+			System.exit(1);
+		}
+		
+		double res = 0;
+		
+		for(int i = 0; i<a.length; i++) {
+			res += a[i]*b[i];
+		}
+		
+		return res;
+	}
 
 	public static double[][] invert(double[][] matrix) {
         int n = matrix.length;

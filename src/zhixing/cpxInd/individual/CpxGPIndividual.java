@@ -12,6 +12,7 @@ import ec.Problem;
 import ec.gp.ADFStack;
 import ec.gp.GPData;
 import ec.gp.GPIndividual;
+import ec.gp.GPProblem;
 import ec.util.Parameter;
 
 public abstract class CpxGPIndividual extends GPIndividual{
@@ -25,13 +26,15 @@ public abstract class CpxGPIndividual extends GPIndividual{
     public static final String P_NUMTREES = "numtrees";
     public static final String P_TREE = "tree";
     public static final String P_TOWRAP = "to-wrap";
-//    public static final String P_NORMWRAP = "norm-wrap";
+    public static final String P_NORMWRAP = "norm-wrap";
     public static final String P_NORMWRAP_F = "norm-wrap-factor";
+    public static final String P_WRAP_MAX_SAMPLE = "wrap_max_sample";
     
     protected boolean towrap = false;
-//    protected boolean normalize_wrap = false;
-//    protected double normalize_f = 1e-3;
-//    protected double weight_norm = 0;
+    protected boolean normalize_wrap = false;
+    protected double normalize_f = 1e-3;
+    protected double weight_norm = 0;
+    protected int wrap_max_sample = 1000;
     
     public abstract void rebuildIndividual(EvolutionState state, int thread);
     
@@ -100,13 +103,16 @@ public abstract class CpxGPIndividual extends GPIndividual{
 	//the wrapper applies polynomial regression to fine tune the final output of GP programs, returns the tuned outputs. 
 	public abstract double [] wrapper(EvolutionState state, int thread, GPData input, ADFStack stack, GPIndividual individual, double [] predict, double [] target);
 	
-	public abstract ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list, EvolutionState state, int thread);
+	public abstract ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list, EvolutionState state, int thread, GPProblem problem);
 	
 	public boolean IsWrap() {return towrap;}
 	
 	public abstract Object getWrapper();
 	
-//	public double getWeightNorm() {
-//		return weight_norm;
-//	}
+	public double getWeightNorm() {
+		return weight_norm;
+	}
+	public double getNormFactor() {
+		return normalize_f;
+	}
 }

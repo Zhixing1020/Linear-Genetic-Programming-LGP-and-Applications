@@ -322,10 +322,12 @@ public class LGPFitnessLandscape {
 		
 		FileWriter f;
 		FileWriter historyF, currentBestF;
+		FileWriter InstrListFile;
 		try {
 			f = new FileWriter("D:/Application/Eclipse/workspace/GPJSS-basicLGP/GPJSS-basicLGP/fitnesslandscape.txt");
 			historyF = new FileWriter("D:/Application/Eclipse/workspace/GPJSS-basicLGP/GPJSS-basicLGP/history.txt");
 			currentBestF = new FileWriter("D:/Application/Eclipse/workspace/GPJSS-basicLGP/GPJSS-basicLGP/currentBest.txt");
+			InstrListFile = new FileWriter("D:/Application/Eclipse/workspace/GPJSS-basicLGP/GPJSS-basicLGP/instruction_list.txt");
 			
 			BufferedWriter bw = new BufferedWriter(f);
 			for(int i = 0; i<coordinates.size(); i++) {
@@ -333,6 +335,14 @@ public class LGPFitnessLandscape {
 					bw.write(""+coordinates.get(i).get(j)+"\t");
 				}
 				bw.write(""+fitnessLandscape.get(i)+"\n");
+				bw.flush();
+			}
+			bw.close();
+			
+			bw = new BufferedWriter(InstrListFile);
+			for(int i = 0; i<100 && i<indexlist.size(); i++) {
+				
+				bw.write(""+i+"\t"+indexlist.getSymbolsByIndex(i).toString()+"\n");
 				bw.flush();
 			}
 			bw.close();

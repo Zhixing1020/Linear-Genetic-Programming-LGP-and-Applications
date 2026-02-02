@@ -124,7 +124,7 @@ public class LGPSwapPipeline extends LGPMicroMutationPipeline {
 	        	double old_effrate = ((double)j.getEffTreesLength()) / j.getTreesLength();
 	        	
 	        	//get the swapping index
-		        int t = getLegalMutateIndex(j, state, thread);
+//		        int t = getLegalMutateIndex(j, state, thread);
 		        
 //		        //get the size of swapping building blocks
 //		        int size = state.random[thread].nextInt(stepSize) + 1; 
@@ -142,12 +142,15 @@ public class LGPSwapPipeline extends LGPMicroMutationPipeline {
 		        
 		        //get the to-swap-with instruction
 		        int step = state.random[thread].nextInt(stepSize) + 1;
-		        int des = Math.min(t + step, j.getTreesLength()-1);
+//		        int des = Math.min(t + step, j.getTreesLength()-1);
 		        
 //		        boolean eff1 = j.getTreeStruct(t).status;
 //		        boolean eff2 = j.getTreeStruct(des).status;
-		        
-		        swapInstructions(j, t, des);
+		        for(int s = 0; s<step; s++) {
+		        	int t = getLegalMutateIndex(j, state, thread);
+		        	int des = Math.min(t+1, j.getTreesLength()-1);
+		        	swapInstructions(j, t, des);
+		        }
 		        j.evaluated = false; 
 		        
 		        double new_effrate = ((double)j.getEffTreesLength()) / j.getTreesLength();

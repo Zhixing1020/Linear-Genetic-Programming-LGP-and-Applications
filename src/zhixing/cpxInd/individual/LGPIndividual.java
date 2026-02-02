@@ -22,6 +22,7 @@ import ec.gp.GPData;
 import ec.gp.GPIndividual;
 import ec.gp.GPInitializer;
 import ec.gp.GPNode;
+import ec.gp.GPProblem;
 import ec.gp.GPTree;
 import ec.util.Code;
 import ec.util.Output;
@@ -54,6 +55,7 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	
 	private static final String P_NUMOUTPUTREGISTERS = "num-output-register";
 	private static final String P_OUTPUTREGISTER = "output-register";
+	private static final String P_FLOATOUTPUT = "to-float-outputs";
 	
 	private static final String P_EFFECTIVE_INITIAL = "effective_initial";
 	
@@ -67,6 +69,8 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	
 	protected int numRegs;
 	protected int numOutputRegs;
+	protected int tmp_numOutputRegs;
+	protected boolean float_numOutputRegs = false;
 	
 	protected double rateFlowOperator;
 	protected int maxIterTimes;
@@ -103,9 +107,16 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 		 //set wrapper or not
 		 towrap = state.parameters.getBoolean(base.push(P_TOWRAP), def.push(P_TOWRAP), false);
 		 wraplist = new ArrayList<>();
+		 wrap_max_sample = state.parameters.getInt(base.push(P_WRAP_MAX_SAMPLE), def.push(P_WRAP_MAX_SAMPLE), 1000);
+		 if(wrap_max_sample < 1) {
+			 state.output.fatal("The wrap_max_sample must be larger than 1.",
+					 base.push(P_WRAP_MAX_SAMPLE), def.push(P_WRAP_MAX_SAMPLE));
+		 }
 		 
-//		 normalize_wrap = state.parameters.getBoolean(base.push(P_NORMWRAP), def.push(P_NORMWRAP), false);
-//		 normalize_f = state.parameters.getDoubleWithDefault(base.push(P_NORMWRAP_F), def.push(P_NORMWRAP_F), 1e-3);
+		 float_numOutputRegs = state.parameters.getBoolean(base.push(P_FLOATOUTPUT), def.push(P_FLOATOUTPUT), false);
+		 
+		 normalize_wrap = state.parameters.getBoolean(base.push(P_NORMWRAP), def.push(P_NORMWRAP), false);
+		 normalize_f = state.parameters.getDoubleWithDefault(base.push(P_NORMWRAP_F), def.push(P_NORMWRAP_F), 1e-3);
 	    
 		 // the maximum/minimum number of trees
 	     MaxNumTrees = state.parameters.getInt(base.push(P_MAXNUMTREES),def.push(P_MAXNUMTREES),1);  // at least 1 tree for GP!
@@ -153,6 +164,7 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	         state.output.fatal("An LGPIndividual must have at least one output register.",
 	             base.push(P_NUMOUTPUTREGISTERS),def.push(P_NUMOUTPUTREGISTERS));
 	     outputRegister = new int[numOutputRegs];
+	     tmp_numOutputRegs = numOutputRegs;
 	     for(int r = 0; r<numOutputRegs; r++){
 //	    	 Parameter b = base.push(P_OUTPUTREGISTER).push("" + r);
 //	            
@@ -299,6 +311,25 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	public int getNumRegs() {
 		return numRegs;
 	}
+	
+	public int getNumOutputRegs() {
+		return numOutputRegs;
+	}
+	public int getCurNumOutputRegs() {
+		return tmp_numOutputRegs;
+	}
+	public void setCurNumOutputRegs(int num) {
+		if(num > numOutputRegs) {
+			System.err.print("cannot set the number of output registers "+ num + " larger than the maximum number: "+ numOutputRegs);
+			System.exit(1);
+		}
+		if(isFloatingOutputs()) {
+			tmp_numOutputRegs = num;
+		}
+	}
+	public boolean isFloatingOutputs() {
+		return float_numOutputRegs;
+	}
 
 	public int[] getInitReg() {
 		return initReg;
@@ -336,7 +367,7 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	     for(int i=0;i<outReg.size();i++){
 	    	 getOutputRegister()[i] = outReg.get(i);
 	     }
-	     
+	     numOutputRegs = tmp_numOutputRegs = outputRegister.length;
 	}
 	
 	public void setRegister(int ind, double value){
@@ -559,6 +590,9 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
         	t.owner = this;
         	this.wraplist.add(t);
 		}
+		
+		this.tmp_numOutputRegs = obj.getCurNumOutputRegs();
+		this.float_numOutputRegs = obj.isFloatingOutputs();
     }
     
     /** Like clone(), but doesn't force the GPTrees to deep-clone themselves. */
@@ -740,8 +774,23 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 		return res / cnt_tree;
 	}
 	
+	public double getNumEffNode() {
+		updateStatus();
+		double res = 0;
+//		int cnt_tree = 0;
+		for(GPTreeStruct tree : getTreelist()){
+			if (tree.status){
+//				cnt_tree ++;
+				res += tree.child.numNodes(GPNode.NODESEARCH_ALL) - tree.child.numNodes(GPNode.NODESEARCH_READREG) - 1;  //"-1" is for WriteRegister
+			}
+		}
+		
+		return res ;
+	}
+	
 	public double getProgramSize() {
-		return getEffTreesLength() * getAvgNumEffFun() * 2.0;
+//		return getEffTreesLength() * getAvgNumEffFun() * 2.0;
+		return getNumEffNode();
 	}
 	
 	public void updateStatus(int n, int []tar) {
@@ -1370,9 +1419,9 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
 	}
 	
 	@Override
-	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list, EvolutionState state, int thread) {
+	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list, EvolutionState state, int thread, GPProblem problem) {
 		
-		final int MAX_SAMPLE = 1000;
+		final int MAX_SAMPLE = wrap_max_sample;
 		
 		double [][] predict = null;
 		double [] target = null;
@@ -1425,13 +1474,13 @@ public abstract class LGPIndividual extends CpxGPIndividual implements CpxGPInte
             
             double [] W = lr.getWeights();
             
-//            weight_norm = 0;
-//            if(normalize_wrap) {
-//            	for(double w : W) {
-//                	weight_norm += w*w;
-//                }
-//                weight_norm = Math.sqrt(weight_norm/W.length) * normalize_f;
-//            }
+            weight_norm = 0;
+            if(normalize_wrap) {
+            	for(int w = 1; w<W.length; w++) {
+                	weight_norm += Math.abs(W[w]);
+                }
+                weight_norm = Math.sqrt(weight_norm/W.length) * normalize_f;
+            }
             
             		
             GPTreeStruct instr = constructInstr(outputRegister[tar], W);

@@ -1065,6 +1065,10 @@ public abstract class GPNode implements GPNodeParent, Prototype
         (perhaps if it's an ERC), you should use the ec.util.Code library.  */
 
     public abstract String toString();
+    
+    public String toGraphvizString() {
+    	return toString();
+    }
 
     /** Returns a Lisp-like atom for the node which is intended for human
         consumption, and not to be read in again.  The default version
