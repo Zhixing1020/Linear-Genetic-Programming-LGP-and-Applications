@@ -1,0 +1,335 @@
+#print-unaccessed-params = true
+#print-used-params = true
+
+# ==============================
+# Administrative parameters
+# ==============================
+evalthreads = 1
+breedthreads = 1
+jobs = 1
+seed.0 = 4
+checkpoint = false
+checkpoint-modulo = 1
+checkpoint-prefix = ec
+
+# ==============================
+# Basic evolution parameters
+# ==============================
+state = ec.simple.SimpleEvolutionState
+finish = ec.simple.SimpleFinisher
+exch = ec.simple.SimpleExchanger
+breed =	ec.simple.SimpleBreeder
+eval = ec.simple.SimpleEvaluator
+stat = ec.simple.SimpleStatistics
+stat.file = $out.stat
+stat.num-children = 1
+stat.child.0 = zhixing.symbolicregression.statistics.LGP4SRstatistics
+stat.child.0.file = $outtabular.stat
+
+generations = 200
+quit-on-run-complete = true
+
+pop = ec.Population
+pop.subpops = 1
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.size =	250
+
+breed.elite.0 = 5
+
+
+# ==============================
+# GP general parameters
+# ==============================
+
+# GP population parameters
+pop.subpop.0.species = zhixing.cpxInd.species.CpxGPSpecies
+pop.subpop.0.species.ind = zhixing.symbreg_multitarget.individual.LGPIndividual4SRMT
+pop.subpop.0.species.ind.maxnumtrees = 100
+pop.subpop.0.species.ind.minnumtrees = 1
+pop.subpop.0.species.ind.init_maxnumtrees = 20
+pop.subpop.0.species.ind.init_minnumtrees = 5
+pop.subpop.0.species.ind.numregisters = 8
+pop.subpop.0.species.ind.rate_flowoperator = 0.2
+pop.subpop.0.species.ind.max_itertimes = 100
+pop.subpop.0.species.ind.effective_initial = true
+#SimpleGPTree
+pop.subpop.0.species.ind.tree.0 = zhixing.cpxInd.individual.GPTreeStruct
+pop.subpop.0.species.ind.tree.0.tc = tc0
+pop.subpop.0.species.ind.num-output-register = 1
+pop.subpop.0.species.ind.output-register.0 = 0
+pop.subpop.0.species.ind.output-register.1 = 1
+pop.subpop.0.species.ind.output-register.2 = 2
+pop.subpop.0.species.ind.output-register.3 = 3
+pop.subpop.0.species.ind.output-register.4 = 4
+pop.subpop.0.species.ind.output-register.5 = 5
+pop.subpop.0.species.ind.output-register.6 = 6
+pop.subpop.0.species.ind.output-register.7 = 7
+
+pop.subpop.0.species.ind.to-wrap = true
+
+#LGP specific parameters
+#numregisters = 4
+#prob_registerbias = 0.5
+
+#pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
+#pop.subpop.0.duplicate-retries = 100
+pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.0.species.fitness.num-objectives = 1
+pop.subpop.0.species.fitness.maximize = false
+pop.subpop.0.duplicate-retries = 100
+
+# GP initializer
+init = ec.gp.GPInitializer
+
+# GP breeding pipeline
+pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.generate-max = false
+pop.subpop.0.species.pipe.num-sources = 5
+pop.subpop.0.species.pipe.source.0 = zhixing.cpxInd.individual.reproduce.LGPMicroMutationPipeline
+pop.subpop.0.species.pipe.source.0.prob = 0.0
+pop.subpop.0.species.pipe.source.1 = zhixing.cpxInd.individual.reproduce.LGPMacroMutationPipeline
+pop.subpop.0.species.pipe.source.1.micro_base = pop.subpop.0.species.pipe.source.4
+#pop.subpop.0.species.pipe.source.1.micro_base = null
+pop.subpop.0.species.pipe.source.1.prob = 0.6
+
+pop.subpop.0.species.pipe.source.2 = zhixing.cpxInd.individual.reproduce.LGP2PointCrossoverPipeline
+pop.subpop.0.species.pipe.source.2.micro_base = pop.subpop.0.species.pipe.source.4
+#pop.subpop.0.species.pipe.source.2.micro_base = null
+pop.subpop.0.species.pipe.source.2.prob = 0.3
+
+pop.subpop.0.species.pipe.source.3 = ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.3.prob = 0.1 
+
+pop.subpop.0.species.pipe.source.4 = zhixing.cpxInd.individual.reproduce.LGPSwapPipeline
+pop.subpop.0.species.pipe.source.4.micro_base = pop.subpop.0.species.pipe.source.0
+#pop.subpop.0.species.pipe.source.4.micro_base = null
+pop.subpop.0.species.pipe.source.4.prob = 0.0
+
+# Selection for reproduction
+breed.reproduce.source.0 = ec.select.TournamentSelection
+
+# Koza crossover parameters -- we regard each instruction as a tree
+gp.koza.xover.source.0 = ec.select.TournamentSelection
+gp.koza.xover.source.1 = same
+gp.koza.xover.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+gp.koza.xover.ns.1 = same
+gp.koza.xover.maxdepth = 3
+gp.koza.xover.tries = 50
+
+#LGP 2-point crossover parameters
+lgp.2pcross.maxseglength = 60
+lgp.2pcross.maxlendiffseg = 10
+lgp.2pcross.maxdistancecrosspoint = 60
+lgp.2pcross.effective = false
+
+# Koza mutation parameters
+gp.koza.mutate.source.0 = ec.select.TournamentSelection
+gp.koza.mutate.ns.0 = zhixing.cpxInd.individual.reproduce.LGPNodeSelector
+gp.koza.mutate.build.0 = zhixing.cpxInd.individual.reproduce.LGPMutationGrowBuilder
+gp.koza.mutate.maxdepth = 3
+gp.koza.mutate.tries = 50
+
+#LGP free (micro) mutation parameters
+#lgp.freemut.step = 1
+
+#LGP effective mutation2 parameters
+#lgp.effmut2.step = 1
+#lgp.effmut2.insert_bias = B1
+#B1,B0,Bmax,B-1
+
+lgp.swap.step = 1
+lgp.swap.effective = true
+
+lgp.micromut.step = 1
+lgp.micromut.effective = true
+lgp.micromut.probfunc = 0.5
+lgp.micromut.probcons = 0.125
+lgp.micromut.probwritereg = 0.25
+lgp.micromut.probreadreg = 0.125
+lgp.micromut.conststep = 10
+
+#LGP macro mutation parameters
+lgp.macromut.type = effmut
+lgp.macromut.step = 1
+lgp.macromut.prob_insert = 0.67
+lgp.macromut.prob_delete = 0.33
+#in fact, the LGP macro mutation can also be set in the way of insertion bias, like effmut2. I just want to show another way of parameter setting here.
+
+# Tournament selection, for reproduction, crossover and mutation
+select.tournament.size = 7
+
+# Koza grow parameters, for mutation
+gp.koza.grow.min-depth = 3
+gp.koza.grow.max-depth = 3
+gp.koza.grow.prob_constant = 0.5
+
+# LGP node selector, for crossover and mutation
+lgp.ns.nonterminals = 0.25
+lgp.ns.root = 0.25
+lgp.ns.constants = 0.25
+lgp.ns.read_registers = 0.25
+
+# GP atomic (a) and set (s) type parameters
+gp.type.a.size = 1
+gp.type.a.0.name = nil
+gp.type.s.size = 0
+
+# GP tree constraints
+gp.tc.size = 1
+gp.tc.0 = ec.gp.GPTreeConstraints
+gp.tc.0.name = tc0
+gp.tc.0.fset = f0
+gp.tc.0.returns = nil
+gp.tc.0.init = ec.gp.koza.HalfBuilder
+
+# Koza half-ramp-and-ramp parameters, for gp.tc.0.init
+gp.koza.half.min-depth = 3
+gp.koza.half.max-depth = 3
+gp.koza.half.growp = 0.0
+gp.koza.half.prob_constant = 0.5
+
+# GP node constraints (nc[k] means the node takes k children), no other constraint
+gp.nc.size = 7
+
+gp.nc.0 = ec.gp.GPNodeConstraints
+gp.nc.0.name = nc0
+gp.nc.0.returns = nil
+gp.nc.0.size = 0
+
+gp.nc.1 = ec.gp.GPNodeConstraints
+gp.nc.1.name = nc1
+gp.nc.1.returns = nil
+gp.nc.1.size = 1
+gp.nc.1.child.0 = nil
+
+gp.nc.2 = ec.gp.GPNodeConstraints
+gp.nc.2.name = nc2
+gp.nc.2.returns = nil
+gp.nc.2.size = 2
+gp.nc.2.child.0 = nil
+gp.nc.2.child.1 = nil
+
+gp.nc.3 = ec.gp.GPNodeConstraints
+gp.nc.3.name = nc3
+gp.nc.3.returns = nil
+gp.nc.3.size = 3
+gp.nc.3.child.0 = nil
+gp.nc.3.child.1 = nil
+gp.nc.3.child.2 = nil
+
+gp.nc.4 = ec.gp.GPNodeConstraints
+gp.nc.4.name = nc4
+gp.nc.4.returns = nil
+gp.nc.4.size = 4
+gp.nc.4.child.0 = nil
+gp.nc.4.child.1 = nil
+gp.nc.4.child.2 = nil
+gp.nc.4.child.3 = nil
+
+gp.nc.5 = ec.gp.GPNodeConstraints
+gp.nc.5.name = nc5
+gp.nc.5.returns = nil
+gp.nc.5.size = 5
+gp.nc.5.child.0 = nil
+gp.nc.5.child.1 = nil
+gp.nc.5.child.2 = nil
+gp.nc.5.child.3 = nil
+gp.nc.5.child.4 = nil
+
+gp.nc.6 = ec.gp.GPNodeConstraints
+gp.nc.6.name = nc6
+gp.nc.6.returns = nil
+gp.nc.6.size = 6
+gp.nc.6.child.0 = nil
+gp.nc.6.child.1 = nil
+gp.nc.6.child.2 = nil
+gp.nc.6.child.3 = nil
+gp.nc.6.child.4 = nil
+gp.nc.6.child.5 = nil
+
+# GP ADF parameters
+gp.problem.stack = ec.gp.ADFStack
+gp.adf-stack.context = ec.gp.ADFContext
+
+# ==============================
+# GP problem specific parameters
+# ==============================
+
+# GP function set parameters
+gp.fs.size = 1
+gp.fs.0.name = f0
+gp.fs.0.size = 9
+gp.fs.0.func.0 = zhixing.symbreg_multitarget.individual.primitive.InputFeature4SRMT
+gp.fs.0.func.0.size = 1
+gp.fs.0.func.0.nc = nc0
+gp.fs.0.func.11 = zhixing.symbreg_multitarget.individual.primitive.AverageGPNode
+gp.fs.0.func.11.size = 1
+gp.fs.0.func.11.nc = nc0
+
+gp.fs.0.func.1 = zhixing.symbolicregression.individual.primitive.Add
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = zhixing.symbolicregression.individual.primitive.Sub
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = zhixing.symbolicregression.individual.primitive.Mul
+gp.fs.0.func.3.nc = nc2
+gp.fs.0.func.4 = zhixing.symbolicregression.individual.primitive.Div
+gp.fs.0.func.4.nc = nc2
+gp.fs.0.func.5 = zhixing.cpxInd.individual.primitive.WriteRegisterGPNode
+gp.fs.0.func.5.numregisters = 8
+gp.fs.0.func.5.nc = nc1
+#two ways to add ReadRegister 1:in JSS, add them into terminal set (JSS specific). 2: add them as functions.
+gp.fs.0.func.6 = zhixing.cpxInd.individual.primitive.ReadRegisterGPNode
+gp.fs.0.func.6.numregisters = 8
+gp.fs.0.func.6.nc = nc0
+
+#gp.fs.0.func.7 = zhixing.symbreg_multitarget.individual.primitive.StdGPNode
+#gp.fs.0.func.7.size = 1
+#gp.fs.0.func.7.nc = nc0
+
+#gp.fs.0.func.11 = zhixing.cpxInd.individual.primitive.ConstantGPNode
+#gp.fs.0.func.11.lowbound = 1.0
+#gp.fs.0.func.11.upbound = 5.0
+#gp.fs.0.func.11.step = 0.2
+#gp.fs.0.func.11.nc = nc0
+
+gp.fs.0.func.7 = zhixing.symbolicregression.individual.primitive.Sin
+gp.fs.0.func.7.nc = nc1
+
+#gp.fs.0.func.11 = zhixing.symbolicregression.individual.primitive.Cos
+#gp.fs.0.func.11.nc = nc1
+
+#gp.fs.0.func.8 = zhixing.symbolicregression.individual.primitive.Ln
+#gp.fs.0.func.8.nc = nc1
+
+gp.fs.0.func.8 = zhixing.symbolicregression.individual.primitive.Exp
+gp.fs.0.func.8.nc = nc1
+
+
+
+
+
+# ==============================
+# The output format
+# ==============================
+#gp.tree.print-style = c
+#pop.subpop.0.species.ind.tree.0.c-operators = false
+#gp.tree.print-style = dot
+
+# ==============================
+# The problem
+# ==============================
+
+eval.problem=zhixing.symbreg_multitarget.optimization.GPSymbolicRegressionMultiTarget
+eval.problem.data=yimei.jss.gp.data.DoubleData
+
+#SRproblemMTar.location = E:\\eclipse\\eclipse\\GPJSS-basicLGP\\src\\zhixing\\symbolicregression\\dataset\\
+eval.problem.dataname = InGaARaman_V1_1st25
+eval.problem.fitness = RSE
+eval.problem.Kfold_index = 0
+eval.problem.Kfold_num = 6
+eval.problem.target_num = 1
+eval.problem.targets.0 = 0
+eval.problem.targets.1 = 2
+eval.problem.targets.2 = 3
+eval.problem.targets.3 = 12
+eval.problem.targets.4 = 15
