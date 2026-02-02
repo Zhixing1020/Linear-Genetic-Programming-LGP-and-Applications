@@ -21,9 +21,9 @@
 
 **Example 1 - Applying basic LGP for symbolic regression SR**
 
-This example applies LGP to solve SR with a generational EA framework. The settings of parameters follow the ones for DJSS [1]
+This example applies LGP to solve SR with a generational EA framework. The settings of parameters follow the common settings for DJSS [1]
 
-[1] MRGP
+[1] Zhixing Huang et al. "Cross-Representation Genetic Programming: A Case Study on Tree-Based and Linear Representations". Evol. Comput. 2025, Dec 1;33(4):541-568. doi: 10.1162/evco.a.25.
 
 1. Locate the [parameter file](./parameters/simpleLGP_SR.params).
 2. Locate the [training and test data path](./dataset/).
