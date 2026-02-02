@@ -8,6 +8,7 @@
   - `Multiform` [Multi-Representation GP: a case study of tree-based and linear representation](./algorithm/Multiform)
   - `multitask` [multitask linear genetic programming](./algorithm/multitask)
   - `semantic` [semantic linear genetic programming](./algorithm/semantic)
+  - `UBanalysis` [Bridging Fitness With Search Spaces By Fitness Supremums: A Theoretical Study on LGP](./algorithm/UBanalysis)
 
 * `cpxInd/individual` contains the core classes of LGP individual (mainly in `individual/LGPIndividual.java`).
   - `individual/primitive` contains the core classes of the newly introduced primitives in LGP (e.g., Read- or WriteRegister, FlowOperators).
