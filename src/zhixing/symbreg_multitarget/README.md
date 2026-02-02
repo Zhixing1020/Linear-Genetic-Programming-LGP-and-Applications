@@ -9,7 +9,7 @@
 
 * `ruleanalysis` defines the test procedure of basic LGP on MTSR.
 
-*  `util` defines the parsing functions for basic LGP (i.e., draw the DAG of LGP programs).
+*  `util` defines the parsing functions for basic LGP (i.e., draw the DAG of LGP programs). (P.S. in this released version, we commented some entity primitives)
 
 
 ### Running Examples ###
