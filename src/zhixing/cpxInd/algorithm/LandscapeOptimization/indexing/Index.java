@@ -34,6 +34,9 @@ public abstract class Index <T> {
 	public int index; //the unique index in the index list
 	public ArrayList<T> symbols  = new ArrayList<T>(); //symbols with the same phenotype or semantics
 	
+	double tabu_frequency = 0; // the frequency of this symbol
+	public static final double TABU_THRESOLD = 0.95;
+	
 	public void setup(final EvolutionState state, final Parameter base) {
 		Parameter def = new Parameter(INDEX);
 		
@@ -67,4 +70,10 @@ public abstract class Index <T> {
 	
 	public abstract Object clone();
 	
+	public void set_tabu_frequency(double val) {
+		tabu_frequency = val;
+	}
+	public double get_tabu_frequency() {
+		return this.tabu_frequency;
+	}
 }

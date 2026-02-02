@@ -173,10 +173,10 @@ public class GenoVector {
 		
 		//move based on the direction
 		toCheckList.clear();
-		ArrayList<Integer> cache = new ArrayList<>();
+		ArrayList<Integer> cache = new ArrayList<>(); //cache stores the new symbols
 		boolean cacheActive = false;
-		int num_instr_changed = 0;
-		for(int i = 0; i<origin_GVlist.size(); i++) {
+		int num_instr_changed = 0; //the total changed number of instructions
+		for(int i = 0; i<origin_GVlist.size(); i++) { //check each position of origin geno vector
 			boolean toCheckValue = true;
 			
 			if(tmpDirection.sizeDirection > 0 && tmpDirection.get(i) != 0) {
@@ -199,16 +199,16 @@ public class GenoVector {
 			if ((i == origin_GVlist.size() - 1 || tmpDirection.get(i) == 0) && !cache.isEmpty()) { //flush the cache
 				
 				int cnt = Math.min(cache.size(), tmpDirection.sizeDirection);
-				cnt = Math.min(cnt, this.length - (origin_GVlist.size() + num_instr_changed));
+				cnt = Math.min(cnt, this.length - (origin_GVlist.size() + num_instr_changed)); //cnt is the number of legible changing instructions.
 				
-				int start = i - cnt;
+				int start = i - cnt; //start: the starting position of the to-be-added instructions
 				int end = i;
 				if(i == origin_GVlist.size() - 1 && tmpDirection.get(i) != 0) { //flush the cache because of reaching the end
 					start ++;
 					end ++;
 				}
 				
-				//add "cnt" original symbols into cache
+				//add "cnt" original symbols into cache. because we are adding instructions, we have to 
 				for(int j = start; j<end; j++) {
 					cache.add(origin_GVlist.get(j));
 					num_instr_changed ++;
@@ -280,7 +280,7 @@ public class GenoVector {
 
 	}
 	
-	protected int moveSymbol(EvolutionState state, int thread, int oldsym, double direction, double confiStep) {
+	static public int moveSymbol(EvolutionState state, int thread, int oldsym, double direction, double confiStep) {
 		
 //		return (int) Math.floor(oldsym + direction*state.random[thread].nextDouble()*confiStep);
 		

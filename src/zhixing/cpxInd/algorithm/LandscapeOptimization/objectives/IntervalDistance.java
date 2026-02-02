@@ -1,5 +1,7 @@
 package zhixing.cpxInd.algorithm.LandscapeOptimization.objectives;
 
+import java.util.ArrayList;
+
 import ec.EvolutionState;
 import zhixing.cpxInd.algorithm.LandscapeOptimization.indexing.Board;
 import zhixing.cpxInd.algorithm.LandscapeOptimization.indexing.GenoVector;
@@ -101,7 +103,7 @@ public class IntervalDistance extends Objective4FLO{
 //		Board loseboard = board.lightTrimCloneByWorst();
 //		loseboard.trim2MaxsizeByWorst();
 		
-		usedItem = new boolean [indexlist.size()];
+		ArrayList<GenoVector> gv_list = new ArrayList<>();
 		
 		for(int b = 0; b<board1.size(); b++) {
 			for(int bi = 0; bi<board1.get(b).size(); bi++) {
@@ -109,22 +111,23 @@ public class IntervalDistance extends Objective4FLO{
 				CpxGPIndividual ind = board1.get(b).get(bi);
 				GenoVector gv = this.indexlist.getGenoVector(ind);
 				
-				for(int k = 0; k < gv.length; k++) {
-					if(gv.G[k] >= 0) {
-						//find the position of item that has this index
-						int pos = 0;
-						for(Object ni : this.indexlist) {
-							if(((Index)ni).index == gv.G[k]) {
-								break;
-							}
-							pos ++;
-						}
-						usedItem[pos] = true;
-					}
-					else {
-						break;
-					}
-				}
+//				for(int k = 0; k < gv.length; k++) {
+//					if(gv.G[k] >= 0) {
+//						//find the position of item that has this index
+//						int pos = 0;
+//						for(Object ni : this.indexlist) {
+//							if(((Index)ni).index == gv.G[k]) {
+//								break;
+//							}
+//							pos ++;
+//						}
+//						usedItem[pos] = true;
+//					}
+//					else {
+//						break;
+//					}
+//				}
+				gv_list.add(gv);
 			}
 		}
 		
@@ -134,21 +137,42 @@ public class IntervalDistance extends Objective4FLO{
 				CpxGPIndividual ind = board2.get(b).get(bi);
 				GenoVector gv = this.indexlist.getGenoVector(ind);
 				
-				for(int k = 0; k < gv.length; k++) {
-					if(gv.G[k] >= 0) {
-						//find the position of item that has this index
-						int pos = 0;
-						for(Object ni : this.indexlist) {
-							if(((Index)ni).index == gv.G[k]) {
-								break;
-							}
-							pos ++;
+//				for(int k = 0; k < gv.length; k++) {
+//					if(gv.G[k] >= 0) {
+//						//find the position of item that has this index
+//						int pos = 0;
+//						for(Object ni : this.indexlist) {
+//							if(((Index)ni).index == gv.G[k]) {
+//								break;
+//							}
+//							pos ++;
+//						}
+//						usedItem[pos] = true;
+//					}
+//					else {
+//						break;
+//					}
+//				}
+				gv_list.add(gv);
+			}
+		}
+		
+		usedItem = new boolean [indexlist.size()];
+		for(GenoVector gv : gv_list) {
+			for(int k = 0; k < gv.length; k++) {
+				if(gv.G[k] >= 0) {
+					//find the position of item that has this index
+					int pos = 0;
+					for(Object ni : this.indexlist) {
+						if(((Index)ni).index == gv.G[k]) {
+							break;
 						}
-						usedItem[pos] = true;
+						pos ++;
 					}
-					else {
-						break;
-					}
+					usedItem[pos] = true;
+				}
+				else {
+					break;
 				}
 			}
 		}
@@ -184,5 +208,10 @@ public class IntervalDistance extends Objective4FLO{
 		
 		setUsedItem(indexlist, leadBoard, loseBoard);
 		
+	}
+	
+	@Override
+	public void updateNewIndexList(EvolutionState state, int thread, IndexList indexlist, Board board) {
+		setUsedItem(indexlist, leadBoard, loseBoard);
 	}
 }

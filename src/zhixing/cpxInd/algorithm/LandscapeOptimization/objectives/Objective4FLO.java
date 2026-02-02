@@ -51,7 +51,7 @@ public abstract class Objective4FLO<T> {
 		this.indexlist = indexlist;
 		this.board = board;
 		
-		usedItem = new boolean [indexlist.size()];
+		ArrayList<GenoVector> gv_list = new ArrayList<>();
 		
 		for(int b = 0; b<board.size(); b++) {
 			for(int bi = 0; bi<board.get(b).size(); bi++) {
@@ -59,21 +59,26 @@ public abstract class Objective4FLO<T> {
 				CpxGPIndividual ind = board.get(b).get(bi);
 				GenoVector gv = this.indexlist.getGenoVector(ind);
 				
-				for(int k = 0; k < gv.length; k++) {
-					if(gv.G[k] >= 0) {
-						//find the position of item that has this index
-						int pos = 0;
-						for(Index ni : this.indexlist) {
-							if(ni.index == gv.G[k]) {
-								break;
-							}
-							pos ++;
+				gv_list.add(gv);
+			}
+		}
+		
+		usedItem = new boolean [indexlist.size()];
+		for(GenoVector gv : gv_list) {
+			for(int k = 0; k < gv.length; k++) {
+				if(gv.G[k] >= 0) {
+					//find the position of item that has this index
+					int pos = 0;
+					for(Index ni : this.indexlist) {
+						if(ni.index == gv.G[k]) {
+							break;
 						}
-						usedItem[pos] = true;
+						pos ++;
 					}
-					else {
-						break;
-					}
+					usedItem[pos] = true;
+				}
+				else {
+					break;
 				}
 			}
 		}
@@ -211,4 +216,8 @@ public abstract class Objective4FLO<T> {
 	public abstract void preprocessing(EvolutionState state, int thread, IndexList indexlist, Board board, int batchsize);
 	
 	public abstract void preprocessing(EvolutionState state, int thread, IndexList indexlist, Board board, int boardsize, int batchsize);
+	
+	public void updateNewIndexList(EvolutionState state, int thread, IndexList indexlist, Board board) {
+		setUsedItem(indexlist, board);
+	}
 }

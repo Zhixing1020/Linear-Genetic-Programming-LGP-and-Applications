@@ -1,8 +1,10 @@
 # Fitness Landscape Optimization for GP search #
 
-This package implements the paper [1]
+This package implements the papers [1], [2]
 
 [1] Z. Huang, Y. Mei, F. Zhang, M. Zhang, and W. Banzhaf, “Fitness Landscape Optimization Makes Stochastic Symbolic Search By Genetic Programming Easier,” IEEE Trans. Evol. Computat., pp. 1–1, 2025, doi: 10.1109/TEVC.2024.3525006.
+
+[2] Z. Huang et al. "Fitness Landscape Compression for Genetic Programming-based Symbolic Search".
 
 
 ### Project Structure ###
@@ -10,6 +12,10 @@ This package implements the paper [1]
 **`SubpopulationFLO.java`**
 
 This class defines additional members and methods in the GP population of the fitness landscape optimization.
+
+**`FLReductionLGP`**
+
+This package implements the algorithm of fitness landscape compression [2]. Refer to its README.
 
 **`indexing`**
 
@@ -24,7 +30,7 @@ This class defines additional members and methods in the GP population of the fi
 
 **`objectives`**
 
-* `Ojbective4FLO.java` defines the abstract class of objective functions for the fitness landscape. 
+* `Objective4FLO.java` defines the abstract class of objective functions for the fitness landscape. 
 * `Distance.java` defines the objective function of the distance between good solutions.
 * `IntervalDistance.java` defines the objective function of the distance between good and poor solutions.
 * `Normalization.java` defines the objective function of the consistency between domain knowledge and symbol indexes.
@@ -34,6 +40,9 @@ The following objectives are not covered in [1] since they are likely helpless f
 * `LosingDistance.java` defines the objective function of the distance between poor solutions.
 * `Navigation.java` defines the objective function of the moving direction. A high level of navigation implies that a solution can move from poor fitness to good fitness without changing the moving direction too much.
 * `norm2Q.java` defines the normalization objective of two genotype vectors.
+
+The following objective is used in [2], working with an origin-attracting move. [2] only uses `Distance` and `L2NORM`
+* `L2NORM.java` defines an L-2 normalization on instruction indices, encouraging prioritizing effective instructions in an ascending order.
 
 **`reproduce`**
 

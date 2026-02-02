@@ -108,6 +108,10 @@ public abstract class IndexList<T> extends ArrayList<Index<T>>{
 	}
 
 	public void initialize(final EvolutionState state, final int thread) {
+		basic_initialize(state, thread);
+	}
+	
+	protected void basic_initialize(final EvolutionState state, final int thread) {
 		initializeDiffNeighbor(state, thread);
 		
 		step = Math.max(1.0, Math.round(step_rate * this.size()));
@@ -182,6 +186,12 @@ public abstract class IndexList<T> extends ArrayList<Index<T>>{
 				list.set(a, list.get(b));
 				list.set(b, tmp);
 			}
+		}
+	}
+	
+	public void clear_tabu_frequency() {
+		for(Index<T> item : this) {
+			item.set_tabu_frequency(0);
 		}
 	}
 }

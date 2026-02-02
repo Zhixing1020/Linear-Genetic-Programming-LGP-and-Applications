@@ -5,9 +5,9 @@ import zhixing.cpxInd.algorithm.LandscapeOptimization.indexing.Board;
 import zhixing.cpxInd.algorithm.LandscapeOptimization.indexing.GenoVector;
 import zhixing.cpxInd.algorithm.LandscapeOptimization.indexing.IndexList;
 
-public class Distance extends Objective4FLO{
-	
-	public short [][][] theta;
+public class L2NORM extends Objective4FLO{
+
+public short [][][] theta;
 	
 	public GenoVector[] genoArray;
 	
@@ -21,7 +21,7 @@ public class Distance extends Objective4FLO{
 		double [] weight = leadBoard.getWeightArray();
 		
 		int boardsize = leadBoard.boardSize();
-		double pDpH = privateCoef /(boardsize*boardsize);
+		double pDpH = privateCoef /(boardsize);
 		
 //		setUsedItem(indexlist, leadBoard);
 		
@@ -30,9 +30,7 @@ public class Distance extends Objective4FLO{
 		for(int l = 0; l<indexlist.size(); l++) {
 			if(!usedItem[l]) continue;
 			for(int j = 0;j<boardsize; j++) {
-				for(int i = j+1; i<boardsize; i++) {
-					pHpI[l] += (weight[j] + weight[i]) * norm2Q.pQpI(genoArray, theta, genoArray, theta, j, i, l);
-				}
+				pHpI[l] += weight[j] * getPL2N_Sum(genoArray[j], theta, j, l);
 			}
 		}
 		
@@ -49,19 +47,16 @@ public class Distance extends Objective4FLO{
 		this.genoArray = leadBoard.toGenoArray(indexlist);
 		double [] weight = leadBoard.getWeightArray();
 		
-		double DI = 0;
+		double L2N = 0;
 		int boardsize = leadBoard.boardSize();
-		double BB = boardsize * boardsize;
 		
 		for(int j = 0; j<boardsize; j++) {
-			for(int i = j+1; i<boardsize; i++) {
-				DI += (weight[j] + weight[i]) * norm2Q.Q(genoArray[j], genoArray[i]);
-			}
+			L2N += weight[j] * getL2Norm(genoArray[j]);
 		}
-		DI /= BB;
+		L2N /= boardsize;
 		
 		
-		return DI*privateCoef;
+		return L2N*privateCoef;
 	}
 
 	@Override
@@ -92,5 +87,28 @@ public class Distance extends Objective4FLO{
 	@Override
 	public void updateNewIndexList(EvolutionState state, int thread, IndexList indexlist, Board board) {
 		setUsedItem(indexlist, leadBoard);
+	}
+	
+	protected double getL2Norm(final GenoVector g1) {
+		double res = 0;
+		
+		for(int k = 0; k<g1.length; k++) {
+			if(g1.G[k] < 0) break;
+			res += Math.pow(g1.G[k],2);
+		}
+		
+		return res;
+	}
+	
+	protected double getPL2N_Sum(final GenoVector g1, final short [][][] theta1, final int gj, int l) {
+		double res = 0;
+		
+		for(int k = 0; k<g1.length; k++) {
+			if(g1.G[k] < 0) break;
+			
+			res += 2*g1.G[k]*theta1[gj][k][l];
+		}
+		
+		return res;
 	}
 }
