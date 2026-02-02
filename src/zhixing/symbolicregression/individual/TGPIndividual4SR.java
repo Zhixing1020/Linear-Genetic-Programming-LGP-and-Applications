@@ -14,6 +14,7 @@ import ec.gp.GPData;
 import ec.gp.GPIndividual;
 import ec.gp.GPInitializer;
 import ec.gp.GPNode;
+import ec.gp.GPProblem;
 import ec.gp.GPTree;
 import ec.util.Code;
 import ec.util.Parameter;
@@ -262,7 +263,7 @@ public class TGPIndividual4SR extends CpxGPIndividual implements TGPInterface4SR
 	}
 	
 	@Override
-	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list){
+	public ArrayList<Double[]> wrapper(ArrayList<Double[]> predict_list, ArrayList<Double[]> target_list, EvolutionState state, int thread, GPProblem problem){
 		return null;
 	}
 	
