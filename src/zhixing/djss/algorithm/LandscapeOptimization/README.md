@@ -6,6 +6,10 @@
 
 This class defines the evolutionary framework of LGP with fitness landscape optimization.
 
+**`FLReductionLGP/parameters`**
+
+This package contains the parameters for applying fitness landscape compression to solve DJSS problems.
+
 **`simpleLGP`**
 
 * **`indexing`**
