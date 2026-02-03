@@ -1,0 +1,327 @@
+#print-unaccessed-params = true
+#print-used-params = true
+
+#multiform GP
+
+# ==============================
+# Administrative parameters
+# ==============================
+evalthreads = 1
+breedthreads = 1
+jobs = 1
+checkpoint = false
+checkpoint-modulo = 1
+checkpoint-prefix = ec
+
+# ==============================
+# Basic evolution parameters
+# ==============================
+state = ec.simple.SimpleEvolutionState
+finish = ec.simple.SimpleFinisher
+exch = ec.simple.SimpleExchanger
+breed =	ec.simple.SimpleBreeder
+eval = ec.simple.SimpleEvaluator
+stat = ec.simple.SimpleStatistics
+stat.file =$out.stat
+stat.num-children = 1
+stat.child.0 = zhixing.symbolicregression.statistics.TGP4SRstatistics
+stat.child.0.file = $outtabular.stat
+
+generations = 50
+quit-on-run-complete = true
+
+pop = ec.Population
+pop.subpops = 1
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.size =	1000
+
+breed.elite.0 = 10
+
+
+# ==============================
+# GP general parameters
+# ==============================
+
+# TGP population parameters
+pop.subpop.0.species = zhixing.cpxInd.species.CpxGPSpecies
+pop.subpop.0.species.ind = zhixing.symbolic_classification.individual.TGPIndividual4Class
+pop.subpop.0.species.ind.numtrees = 6
+pop.subpop.0.species.ind.tree.0 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.0.tc = tc0
+pop.subpop.0.species.ind.tree.1 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.1.tc = tc0
+pop.subpop.0.species.ind.tree.2 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.2.tc = tc0
+pop.subpop.0.species.ind.tree.3 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.3.tc = tc0
+pop.subpop.0.species.ind.tree.4 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.4.tc = tc0
+pop.subpop.0.species.ind.tree.5 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.5.tc = tc0
+
+#pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
+pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.0.species.fitness.num-objectives = 1
+pop.subpop.0.species.fitness.maximize = false
+pop.subpop.0.duplicate-retries = 100
+
+# GP initializer
+init = ec.gp.GPInitializer
+
+# GP breeding pipeline
+pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.generate-max = false
+pop.subpop.0.species.pipe.num-sources = 3
+
+pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0.prob = 0.8
+pop.subpop.0.species.pipe.source.0.source.0 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.0.source.1 = same
+pop.subpop.0.species.pipe.source.0.ns.0 = ec.gp.koza.KozaNodeSelector
+pop.subpop.0.species.pipe.source.0.ns.1 = same
+pop.subpop.0.species.pipe.source.0.ns.0.terminals = 0.1
+pop.subpop.0.species.pipe.source.0.ns.0.nonterminals = 0.9
+pop.subpop.0.species.pipe.source.0.ns.0.root = 0.0
+pop.subpop.0.species.pipe.source.0.maxdepth = 10
+pop.subpop.0.species.pipe.source.0.tries = 1
+
+
+pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
+pop.subpop.0.species.pipe.source.1.prob = 0.15
+pop.subpop.0.species.pipe.source.1.source.0 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.1.ns.0 = ec.gp.koza.KozaNodeSelector
+pop.subpop.0.species.pipe.source.1.ns.0.terminals = 0.1
+pop.subpop.0.species.pipe.source.1.ns.0.nonterminals = 0.9
+pop.subpop.0.species.pipe.source.1.ns.0.root = 0.0
+pop.subpop.0.species.pipe.source.1.build.0 = ec.gp.koza.GrowBuilder
+pop.subpop.0.species.pipe.source.1.build.0.min-depth = 4
+pop.subpop.0.species.pipe.source.1.build.0.max-depth = 4
+pop.subpop.0.species.pipe.source.1.maxdepth = 10
+pop.subpop.0.species.pipe.source.1.tries = 1
+
+pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.2.prob = 0.05
+
+
+# Selection for reproduction
+breed.reproduce.source.0 = ec.select.TournamentSelection
+#breed.reproduce.re-evaluate = true
+
+
+# Tournament selection, for reproduction, crossover and mutation
+select.tournament.size = 7
+
+# GP atomic (a) and set (s) type parameters
+gp.type.a.size = 1
+gp.type.a.0.name = nil
+gp.type.s.size = 0
+
+# GP tree constraints
+gp.tc.size = 1
+gp.tc.0 = ec.gp.GPTreeConstraints
+gp.tc.0.name = tc0
+gp.tc.0.fset = f0
+gp.tc.0.returns = nil
+gp.tc.0.init = ec.gp.koza.HalfBuilder
+gp.tc.0.init.min-depth = 2
+#the same as the maximum depth of instructions
+gp.tc.0.init.max-depth = 10
+gp.tc.0.init.growp = 0.5
+
+
+# GP node constraints (nc[k] means the node takes k children), no other constraint
+gp.nc.size = 7
+
+gp.nc.0 = ec.gp.GPNodeConstraints
+gp.nc.0.name = nc0
+gp.nc.0.returns = nil
+gp.nc.0.size = 0
+
+gp.nc.1 = ec.gp.GPNodeConstraints
+gp.nc.1.name = nc1
+gp.nc.1.returns = nil
+gp.nc.1.size = 1
+gp.nc.1.child.0 = nil
+
+gp.nc.2 = ec.gp.GPNodeConstraints
+gp.nc.2.name = nc2
+gp.nc.2.returns = nil
+gp.nc.2.size = 2
+gp.nc.2.child.0 = nil
+gp.nc.2.child.1 = nil
+
+gp.nc.3 = ec.gp.GPNodeConstraints
+gp.nc.3.name = nc3
+gp.nc.3.returns = nil
+gp.nc.3.size = 3
+gp.nc.3.child.0 = nil
+gp.nc.3.child.1 = nil
+gp.nc.3.child.2 = nil
+
+gp.nc.4 = ec.gp.GPNodeConstraints
+gp.nc.4.name = nc4
+gp.nc.4.returns = nil
+gp.nc.4.size = 4
+gp.nc.4.child.0 = nil
+gp.nc.4.child.1 = nil
+gp.nc.4.child.2 = nil
+gp.nc.4.child.3 = nil
+
+gp.nc.5 = ec.gp.GPNodeConstraints
+gp.nc.5.name = nc5
+gp.nc.5.returns = nil
+gp.nc.5.size = 5
+gp.nc.5.child.0 = nil
+gp.nc.5.child.1 = nil
+gp.nc.5.child.2 = nil
+gp.nc.5.child.3 = nil
+gp.nc.5.child.4 = nil
+
+gp.nc.6 = ec.gp.GPNodeConstraints
+gp.nc.6.name = nc6
+gp.nc.6.returns = nil
+gp.nc.6.size = 6
+gp.nc.6.child.0 = nil
+gp.nc.6.child.1 = nil
+gp.nc.6.child.2 = nil
+gp.nc.6.child.3 = nil
+gp.nc.6.child.4 = nil
+gp.nc.6.child.5 = nil
+
+# GP ADF parameters
+gp.problem.stack = ec.gp.ADFStack
+gp.adf-stack.context = ec.gp.ADFContext
+
+# ==============================
+# GP problem specific parameters
+# ==============================
+
+# GP function set parameters
+gp.fs.size = 1
+gp.fs.0.name = f0
+gp.fs.0.size = 8
+
+Extractor_Argument.arguments.range = 0.25
+Extractor_Argument.arguments.batch = 256
+
+gp.fs.0.func.0 = zhixing.symbolic_classification.individual.primitive.InputFeature4Class
+gp.fs.0.func.0.size = 1
+gp.fs.0.func.0.nc = nc0
+
+#gp.fs.0.func.0 = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.LR_EntityNode
+#gp.fs.0.func.0.argument = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.Args4LR_SRMT
+#gp.fs.0.func.0.nc = nc0
+
+gp.fs.0.func.1 = zhixing.symbolicregression.individual.primitive.Add
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = zhixing.symbolicregression.individual.primitive.Sub
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = zhixing.symbolicregression.individual.primitive.Mul
+gp.fs.0.func.3.nc = nc2
+gp.fs.0.func.4 = zhixing.symbolicregression.individual.primitive.Div
+gp.fs.0.func.4.nc = nc2
+gp.fs.0.func.5 = zhixing.symbolicregression.individual.primitive.Sin
+gp.fs.0.func.5.nc = nc1
+#gp.fs.0.func.5 = zhixing.symbolicregression.individual.primitive.Cos
+#gp.fs.0.func.5.nc = nc1
+gp.fs.0.func.6 = zhixing.symbolicregression.individual.primitive.Sqrt
+gp.fs.0.func.6.nc = nc1
+gp.fs.0.func.7 = zhixing.symbolicregression.individual.primitive.Exp
+gp.fs.0.func.7.nc = nc1
+
+#gp.fs.0.func.8 = zhixing.cpxInd.individual.primitive.ConstantGPNode
+#gp.fs.0.func.8.lowbound = 0.0
+#gp.fs.0.func.8.upbound = 9.0
+#gp.fs.0.func.8.step = 0.2
+#gp.fs.0.func.8.nc = nc0
+
+gp.fs.0.func.8 = zhixing.PlantNFood.individual.primitive.NegSlope_EntityNode
+gp.fs.0.func.8.argument = zhixing.PlantNFood.individual.primitive.Args4NegSlope_SRMT
+gp.fs.0.func.8.nc = nc0
+
+gp.fs.0.func.9 = zhixing.PlantNFood.individual.primitive.PosSlope_EntityNode
+gp.fs.0.func.9.argument = zhixing.PlantNFood.individual.primitive.Args4PosSlope_SRMT
+gp.fs.0.func.9.nc = nc0
+
+gp.fs.0.func.10 = zhixing.PlantNFood.individual.primitive.Avg_EntityNode
+gp.fs.0.func.10.argument = zhixing.PlantNFood.individual.primitive.Args4Avg_SRMT
+gp.fs.0.func.10.nc = nc0
+
+gp.fs.0.func.11 = zhixing.PlantNFood.individual.primitive.Fluctuate_EntityNode
+gp.fs.0.func.11.argument = zhixing.PlantNFood.individual.primitive.Args4Fluctuate_SRMT
+gp.fs.0.func.11.nc = nc0
+
+gp.fs.0.func.12 = zhixing.PlantNFood.individual.primitive.Peak_EntityNode
+gp.fs.0.func.12.argument = zhixing.PlantNFood.individual.primitive.Args4Peak
+gp.fs.0.func.12.nc = nc0
+
+gp.fs.0.func.13 = zhixing.PlantNFood.individual.primitive.Valley_EntityNode
+gp.fs.0.func.13.argument = zhixing.PlantNFood.individual.primitive.Args4Village
+gp.fs.0.func.13.nc = nc0
+
+gp.fs.0.func.14 = zhixing.PlantNFood.individual.primitive.Std_EntityNode
+gp.fs.0.func.14.argument = zhixing.PlantNFood.individual.primitive.Args4Std
+gp.fs.0.func.14.nc = nc0
+
+gp.fs.0.func.15 = zhixing.PlantNFood.individual.primitive.PeakNum_EntityNode
+gp.fs.0.func.15.argument = zhixing.PlantNFood.individual.primitive.Args4PeakNum
+gp.fs.0.func.15.nc = nc0
+
+gp.fs.0.func.16 = zhixing.PlantNFood.individual.primitive.PeakLoc_EntityNode
+gp.fs.0.func.16.argument = zhixing.PlantNFood.individual.primitive.Args4PeakLoc
+gp.fs.0.func.16.nc = nc0
+
+gp.fs.0.func.17 = zhixing.PlantNFood.individual.primitive.Width_EntityNode
+gp.fs.0.func.17.argument = zhixing.PlantNFood.individual.primitive.Args4Width
+gp.fs.0.func.17.nc = nc0
+
+gp.fs.0.func.18 = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.LinearRegFunc_EntityNode
+gp.fs.0.func.18.argument = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.Args4LRF_SRMT
+gp.fs.0.func.18.nc = nc1
+
+gp.fs.0.func.19 = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.SinRegFunc
+gp.fs.0.func.19.argument = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.Args4SinRegFunc
+gp.fs.0.func.19.nc = nc1
+
+gp.fs.0.func.20 = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.PowRegFunc
+gp.fs.0.func.20.argument = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.Args4PowRegFunc
+gp.fs.0.func.20.nc = nc1
+
+gp.fs.0.func.21 = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.ExpoRegFunc
+gp.fs.0.func.21.argument = zhixing.symbreg_multitarget.algorithm.entity.individual.primitive.Args4ExpoRegFunc
+gp.fs.0.func.21.nc = nc1
+
+# ==============================
+# The output format
+# ==============================
+#gp.tree.print-style = c
+#pop.subpop.0.species.ind.tree.0.c-operators = false
+#gp.tree.print-style = dot
+
+# ==============================
+# The problem
+# ==============================
+
+eval.problem=zhixing.symbolic_classification.optimization.GPClassification
+eval.problem.data=yimei.jss.gp.data.DoubleData
+
+eval.problem.dataname = MicroNIR_SNV_origin
+eval.problem.fitness = ERR
+eval.problem.do-validation = false
+eval.problem.Kfold_index = 2
+eval.problem.Kfold_num = 9
+eval.problem.target_num = 1
+eval.problem.targets.0 = 18
+eval.problem.targets.1 = 3
+eval.problem.targets.2 = 5
+eval.problem.targets.3 = 5
+eval.problem.targets.4 = 6
+
+eval.problem.class_num = 6
+
+eval.problem.class.0 = 0
+eval.problem.class.1 = 1
+eval.problem.class.2 = 2
+eval.problem.class.3 = 3
+eval.problem.class.4 = 4
+eval.problem.class.5 = 5
