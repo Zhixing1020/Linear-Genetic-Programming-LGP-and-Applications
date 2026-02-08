@@ -12,19 +12,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import ec.gp.GPNode;
 import ec.gp.GPTree;
 import yimei.util.lisp.LispUtil;
-import zhixing.PlantNFood.Spec2Group.individual.primitive.FirstDerivativeLDA_EntityNode;
-import zhixing.PlantNFood.individual.primitive.Avg_EntityNode;
-import zhixing.PlantNFood.individual.primitive.FirstDerivativeLR_EntityNode;
-import zhixing.PlantNFood.individual.primitive.Fluctuate_EntityNode;
-import zhixing.PlantNFood.individual.primitive.Magnitude_EntityNode;
-import zhixing.PlantNFood.individual.primitive.NegSlope_EntityNode;
-import zhixing.PlantNFood.individual.primitive.PeakLoc_EntityNode;
-import zhixing.PlantNFood.individual.primitive.PeakNum_EntityNode;
-import zhixing.PlantNFood.individual.primitive.Peak_EntityNode;
-import zhixing.PlantNFood.individual.primitive.PosSlope_EntityNode;
-import zhixing.PlantNFood.individual.primitive.Std_EntityNode;
-import zhixing.PlantNFood.individual.primitive.Valley_EntityNode;
-import zhixing.PlantNFood.individual.primitive.Width_EntityNode;
+
 import zhixing.cpxInd.individual.primitive.ConstantGPNode;
 import zhixing.cpxInd.individual.primitive.IFLargerThan;
 import zhixing.cpxInd.individual.primitive.IFLessEqual;
@@ -471,50 +459,7 @@ public class LispParser4Class {
             	int index = Integer.valueOf(indexStr);
             	node = new InputFeature4Class(index);
             }
-            else if(expression.startsWith("Avg_Entity")) {
-            	node = new Avg_EntityNode();
-            	((Avg_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("Std_Entity")) {
-            	node = new Std_EntityNode();
-            	((Std_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("Fluctuate_Entity")) {
-            	node = new Fluctuate_EntityNode();
-            	((Fluctuate_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("NegSlope_Entity")) {
-            	node = new NegSlope_EntityNode();
-            	((NegSlope_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("PosSlope_Entity")) {
-            	node = new PosSlope_EntityNode();
-            	((PosSlope_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("Peak_Entity")) {
-            	node = new Peak_EntityNode();
-            	((Peak_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("Valley_Entity")) {
-            	node = new Valley_EntityNode();
-            	((Valley_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("Magnitude_Entity")) {
-            	node = new Magnitude_EntityNode();
-            	((Magnitude_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("PeakNum_Entity")) {
-            	node = new PeakNum_EntityNode();
-            	((PeakNum_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("PeakLoc_Entity")) {
-            	node = new PeakLoc_EntityNode();
-            	((PeakLoc_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("Width_Entity")) {
-            	node = new Width_EntityNode();
-            	((Width_EntityNode)node).setFromString(expression);
-            }
+
             else if(expression.startsWith("LR_entity")) {
             	node = new LR_EntityNode();
             	((LR_EntityNode)node).setFromString(expression);
@@ -527,14 +472,7 @@ public class LispParser4Class {
             	node = new PLSR_EntityNode();
             	((PLSR_EntityNode)node).setFromString(expression);
             }
-            else if(expression.startsWith("1stD_LR_entity")) {
-            	node = new FirstDerivativeLR_EntityNode();
-            	((FirstDerivativeLR_EntityNode)node).setFromString(expression);
-            }
-            else if(expression.startsWith("1stD_LDA_entity")) {
-            	node = new FirstDerivativeLDA_EntityNode();
-            	((FirstDerivativeLDA_EntityNode)node).setFromString(expression);
-            }
+
             else if(expression.startsWith("CondLR_entity")) {
             	node = new CondLR_EntityNode();
             	((CondLR_EntityNode)node).setFromString(expression);
